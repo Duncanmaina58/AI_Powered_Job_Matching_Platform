@@ -12,11 +12,17 @@ import path from "path";
  * @access Public
  */
 export const registerUser = asyncHandler(async (req, res) => {
-  const { name, email, password, role } = req.body;
+  const { name, email, password, role, company_name } = req.body;
 
   if (!name || !email || !password || !role) {
     res.status(400);
     throw new Error("Please fill all fields (name, email, password, role)");
+  }
+
+  // Require company name only for employers
+  if (role === "employer" && !company_name) {
+    res.status(400);
+    throw new Error("Company name is required for employers");
   }
 
   const existingUser = await User.findOne({ email });
@@ -25,15 +31,12 @@ export const registerUser = asyncHandler(async (req, res) => {
     throw new Error("User already exists");
   }
 
-  // ❌ REMOVED: The explicit hashing to prevent double-hashing.
-  // const hashedPassword = await bcrypt.hash(password, 10); 
-
-  // ✅ The Mongoose pre('save') hook in User.js will now hash this.
   const user = await User.create({
     name,
     email,
-    password, // Pass the plain text password
-    role, 
+    password, // handled by pre('save')
+    role,
+    company_name: role === "employer" ? company_name : undefined,
   });
 
   const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
@@ -45,6 +48,7 @@ export const registerUser = asyncHandler(async (req, res) => {
     name: user.name,
     email: user.email,
     role: user.role,
+    company_name: user.company_name,
     token,
   });
 });

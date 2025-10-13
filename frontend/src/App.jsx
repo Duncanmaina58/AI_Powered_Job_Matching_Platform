@@ -11,6 +11,8 @@ import MyJobs from "./pages/MyJobs";
 import Settings from "./pages/Settings";
 import Profile from "./pages/Profile";
 import ApplicantsPage from "./pages/ApplicantsPage";
+import BrowseJobs from "./pages/JobseekerDashboard/BrowseJobs";
+import JobseekerDashboard from "./pages/JobseekerDashboard/JobseekerDashboard";
 // import CreateJob from "./pages/CreateJob";
 import EditJob from "./pages/EditJob";
 /**
@@ -34,6 +36,8 @@ function App() {
           {/* 👨‍💼 Job Seeker */}
           <Route path="/jobs" element={<Jobs />} />
           <Route path="/ai" element={<AIMatch />} />
+          <Route path="/jobseeker/dashboard" element={<JobseekerDashboard />} />
+          
 
           {/* 🧑‍💼 Employer */}
           <Route path="/employer/dashboard" element={<EmployerDashboard />} />

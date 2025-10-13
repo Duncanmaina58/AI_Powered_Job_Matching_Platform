@@ -22,18 +22,33 @@ export default function EmployerDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [user, setUser] = useState(null); // 🆕 Store employer info (including avatar)
   const navigate = useNavigate();
 
-  // ✅ Fetch Employer Jobs Only (Authorized)
+  // 🆕 Fetch Employer Profile (to show avatar + name)
+  const fetchEmployerProfile = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return navigate("/login");
+
+      const res = await axios.get("http://localhost:5000/api/users/profile", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      setUser(res.data);
+    } catch (err) {
+      console.error("Failed to fetch employer profile:", err);
+    }
+  };
+
+  // ✅ Fetch Employer Jobs
   const fetchEmployerJobs = async () => {
     setLoading(true);
     setError("");
     try {
       const token = localStorage.getItem("token");
       const res = await axios.get("http://localhost:5000/api/jobs/", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
       setJobs(res.data);
     } catch (err) {
@@ -45,6 +60,7 @@ export default function EmployerDashboard() {
   };
 
   useEffect(() => {
+    fetchEmployerProfile(); // 🆕 load avatar/name
     fetchEmployerJobs();
   }, []);
 
@@ -62,20 +78,15 @@ export default function EmployerDashboard() {
     navigate("/login");
   };
 
-  // 🗑️ Delete Job (Authorized)
+  // 🗑️ Delete Job
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this job?")) return;
-
     try {
       const token = localStorage.getItem("token");
       await axios.delete(`http://localhost:5000/api/jobs/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
-
       alert("✅ Job deleted successfully!");
-      // Refresh job list
       fetchEmployerJobs();
     } catch (err) {
       console.error("Failed to delete job:", err);
@@ -133,9 +144,15 @@ export default function EmployerDashboard() {
               <Bell size={22} />
               <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full"></span>
             </button>
+
+            {/* 🆕 Avatar + Name from DB */}
             <div className="flex items-center gap-2">
-              <img src="https://i.pravatar.cc/40" alt="Profile" className="w-9 h-9 rounded-full border border-gray-200" />
-              <span className="text-sm font-medium">Duncan</span>
+              <img
+                src={user?.avatar || "https://i.pravatar.cc/40"} // 🆕 load actual uploaded avatar
+                alt="Profile"
+                className="w-9 h-9 rounded-full border border-gray-200 object-cover"
+              />
+              <span className="text-sm font-medium">{user?.name || "Employer"}</span>
             </div>
           </div>
         </header>

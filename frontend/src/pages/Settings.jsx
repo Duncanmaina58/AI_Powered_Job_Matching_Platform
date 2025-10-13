@@ -34,8 +34,7 @@ export default function Settings() {
 
     try {
       const { token } = JSON.parse(localStorage.getItem("userInfo")) || {};
-      const { data } = await axios.put(
-        "/api/users/profile",
+      const { data } = await axios.put("http://localhost:5000/api/users/profile",
         { name: form.name, email: form.email },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -63,7 +62,7 @@ export default function Settings() {
 
     try {
       const { token } = JSON.parse(localStorage.getItem("userInfo")) || {};
-      const { data } = await axios.post("/api/users/upload-avatar", formData, {
+      const { data } = await axios.post("http://localhost:5000/api/users/upload-avatar", formData, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",

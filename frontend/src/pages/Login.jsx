@@ -21,7 +21,7 @@ const handleSubmit = async (e) => {
       password,
       role,
     });
-
+console.log(data)
     // ✅ Save the full user info
     localStorage.setItem("userInfo", JSON.stringify(data));
 
@@ -34,7 +34,7 @@ const handleSubmit = async (e) => {
     if (data.role === "employer") {
       navigate("/employer/dashboard");
     } else {
-      navigate("/jobs");
+      navigate("/jobseeker/dashboard");
     }
   } catch (err) {
     setError(
