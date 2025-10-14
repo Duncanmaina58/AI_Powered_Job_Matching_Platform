@@ -148,6 +148,7 @@ export const applyForJob = asyncHandler(async (req, res) => {
     coverLetter,
     cv,
     user: req.user ? req.user._id : null,
+    
   });
 
   job.applicants.push(applicant._id);
@@ -188,3 +189,87 @@ export const getJobApplicants = asyncHandler(async (req, res) => {
     applicants: job.applicants,
   });
 });
+/**
+ * @desc Get all job applications of a jobseeker
+ * @route GET /api/jobseeker/applications
+ * @access Private (Jobseeker)
+ */
+export const getJobseekerApplications = asyncHandler(async (req, res) => {
+  const userId = req.user._id;
+
+  const applications = await Applicant.find({ user: userId })
+    .populate("job", "title company location")
+    .sort({ createdAt: -1 });
+
+  res.status(200).json(applications);
+});
+
+/**
+ * @desc Withdraw a job application
+ * @route DELETE /api/jobs/jobseeker/applications/:id
+ * @access Private (Jobseeker)
+ */
+export const withdrawApplication = asyncHandler(async (req, res) => {
+  const application = await Applicant.findById(req.params.id);
+
+  if (!application) {
+    res.status(404);
+    throw new Error("Application not found");
+  }
+
+  // Ensure user owns this application
+  if (application.user.toString() !== req.user._id.toString()) {
+    res.status(403);
+    throw new Error("Not authorized to withdraw this application");
+  }
+
+  await application.deleteOne();
+
+  res.status(200).json({ message: "Application withdrawn successfully" });
+});
+
+/**
+ * @desc Get jobseeker dashboard statistics
+ * @route GET /api/jobs/dashboard
+ * @access Private (Jobseeker)
+ */
+export const getDashboardStats = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    // 1️⃣ Count active applications
+    const activeApplications = await Applicant.countDocuments({ user: userId });
+
+    // 2️⃣ Count matched jobs (by skill overlap)
+    const user = await Job.findById(userId).populate("user");
+    let matchedJobs = 0;
+    if (req.user?.skills && req.user.skills.length > 0) {
+      matchedJobs = await Job.countDocuments({
+        required_skills: { $in: req.user.skills },
+      });
+    }
+
+    // 3️⃣ Placeholder for messages (implement later if you add messageModel)
+    const messages = 0;
+
+    // 4️⃣ Calculate profile completion (example logic)
+    const profileFields = ["name", "email", "phone", "skills", "resume"];
+    let filled = profileFields.filter((field) => req.user[field]).length;
+    const profileCompletion = Math.round((filled / profileFields.length) * 100);
+
+    res.json({
+      activeApplications,
+      matchedJobs,
+      messages,
+      profileCompletion,
+    });
+  } catch (error) {
+    console.error("Error fetching dashboard stats:", error);
+    res.status(500).json({ message: "Server error fetching dashboard data" });
+  }
+};
+
+
+
+
+

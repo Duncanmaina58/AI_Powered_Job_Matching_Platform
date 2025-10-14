@@ -9,38 +9,44 @@ import {
   updateJob,
   deleteJob,
   getJobApplicants,
-  applyForJob, // ✅ Only this one (applyJob was removed)
+  applyForJob,
+  getDashboardStats,
+  getJobseekerApplications,
+  withdrawApplication,
+  
 } from "../controllers/jobController.js";
 
 import { protect } from "../middleware/authMiddleware.js";
 import { isEmployer } from "../middleware/roleMiddleware.js";
-
+import { updateApplicationStatus } from "../controllers/applicationController.js";
 const router = express.Router();
-
 const upload = multer({ dest: "uploads/cv/" });
-router.post("/:id/apply", protect, upload.single("cv"), applyForJob);
+
 /* ======================
    🔹 PUBLIC ROUTES
    ====================== */
-router.get("/", getJobs); // View all jobs (for jobseekers)
+router.get("/", getJobs); // Get all jobs
 
 /* ======================
    🔹 JOBSEEKER ROUTES
    ====================== */
-router.post("/:id/apply", protect, applyForJob); // Apply for a job
-
+router.get("/dashboard", protect, getDashboardStats); // Dashboard stats
+router.get("/jobseeker/applications", protect, getJobseekerApplications);
+router.post("/:id/apply", protect, upload.single("cv"), applyForJob); // Apply for job
+router.delete("/jobseeker/applications/:id", protect, withdrawApplication);
 /* ======================
    🔹 EMPLOYER ROUTES
    ====================== */
-router.post("/", protect, isEmployer, createJob); // Create a job
-router.get("/employer", protect, isEmployer, getEmployerJobs); // Employer’s job listings
-router.get("/:id/applicants", protect, isEmployer, getJobApplicants); // View applicants for one job
-router.put("/:id", protect, isEmployer, updateJob); // Update a job
-router.delete("/:id", protect, isEmployer, deleteJob); // Delete a job
+router.get("/employer", protect, isEmployer, getEmployerJobs); // Employer's jobs
+router.post("/", protect, isEmployer, createJob); // Create new job
+router.get("/:id/applicants", protect, isEmployer, getJobApplicants); // View job applicants
+router.put("/:id", protect, isEmployer, updateJob); // Update job
+router.delete("/:id", protect, isEmployer, deleteJob); // Delete job
+router.put("/applications/:id/status", protect, updateApplicationStatus);
 
 /* ======================
-   🔹 PUBLIC JOB DETAILS
+   🔹 JOB DETAILS ROUTE (MUST BE LAST)
    ====================== */
-router.get("/:id", getJobById); // Get job by ID (open to everyone)
+router.get("/:id", getJobById); // Get single job by ID
 
 export default router;

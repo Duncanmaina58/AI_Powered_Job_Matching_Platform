@@ -11,6 +11,7 @@ const Sidebar = ({ active, setActive }) => {
     { id: "applications", label: "My Applications", icon: <Briefcase size={18} /> },
     { id: "profile", label: "Profile", icon: <User size={18} /> },
   ];
+  
 
   const handleLogout = () => {
     localStorage.removeItem("token");

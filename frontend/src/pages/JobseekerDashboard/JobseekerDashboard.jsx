@@ -16,14 +16,17 @@ function JobseekerDashboard() {
     profileCompletion: 0,
   });
 
-  // Fetch user info from backend
+  // ✅ Fetch user info
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const token = localStorage.getItem("token");
+        const stored = JSON.parse(localStorage.getItem("userInfo"));
+        const token = stored?.token;
+
         const res = await axios.get("http://localhost:5000/api/users/me", {
           headers: { Authorization: `Bearer ${token}` },
         });
+
         setUser(res.data);
       } catch (err) {
         console.error("Failed to fetch user info:", err);
@@ -33,14 +36,17 @@ function JobseekerDashboard() {
     fetchUserData();
   }, []);
 
-  // Fetch dashboard stats
+  // ✅ Fetch dashboard stats
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const token = localStorage.getItem("token");
+        const stored = JSON.parse(localStorage.getItem("userInfo"));
+        const token = stored?.token;
+
         const res = await axios.get("http://localhost:5000/api/jobseeker/stats", {
           headers: { Authorization: `Bearer ${token}` },
         });
+
         setStats(res.data);
       } catch (err) {
         console.error("Failed to fetch stats:", err);
@@ -50,7 +56,7 @@ function JobseekerDashboard() {
     fetchStats();
   }, []);
 
-  // Decide what to show based on active state
+  // ✅ Dynamic content based on active menu
   const renderContent = () => {
     switch (active) {
       case "overview":

@@ -28,6 +28,11 @@ const applicantSchema = new mongoose.Schema(
       ref: "User",
       required: false, // optional in case applicant isn't registered
     },
+    status: {
+      type: String,
+      enum: ["Pending", "Accepted", "Rejected"],
+      default: "Pending",
+    },
   },
   { timestamps: true }
 );

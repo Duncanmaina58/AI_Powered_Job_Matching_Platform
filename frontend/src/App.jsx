@@ -13,6 +13,7 @@ import Profile from "./pages/Profile";
 import ApplicantsPage from "./pages/ApplicantsPage";
 import BrowseJobs from "./pages/JobseekerDashboard/BrowseJobs";
 import JobseekerDashboard from "./pages/JobseekerDashboard/JobseekerDashboard";
+import ViewApplicants from "./pages/ViewApplicants";
 // import CreateJob from "./pages/CreateJob";
 import EditJob from "./pages/EditJob";
 /**
@@ -49,7 +50,9 @@ function App() {
           <Route path="/employer/edit-job/:id" element={<EditJob />} />
           
 <Route path="/employer/job/:id/applicants" element={<ApplicantsPage />} />
+<Route path="/employer/jobs/:jobId/applicants" element={<ViewApplicants />} />
 
+<Route path="/employer/jobs/:id/applicants" element={<ViewApplicants />} />
           {/* <Route path="/employer/Createjob" element={<CreateJob />} />  */}
 
           {/* * ⚠️ Catch-all */}
