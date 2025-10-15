@@ -1,6 +1,7 @@
 import JobApplication from "../models/Applicant.js";
 import User from "../models/User.js";
 import Applicant from "../models/Applicant.js";
+import Job from "../models/Job.js"; 
 import path from "path";
 import fs from "fs";
 
@@ -120,5 +121,35 @@ export const uploadProfileFiles = async (req, res) => {
     res.json({ message: "Files uploaded successfully", user });
   } catch (error) {
     res.status(500).json({ message: "Upload failed", error: error.message });
+  }
+};
+
+
+
+export const getAIMatchedJobs = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    // 🧩 Simple matching: jobs containing at least one of user’s skills
+    const matchedJobs = await Job.find({
+      requiredSkills: { $in: user.skills },
+    }).limit(10);
+
+    // Add match percentage based on number of matching skills
+    const jobsWithMatchScore = matchedJobs.map((job) => {
+      const commonSkills = job.requiredSkills.filter((skill) =>
+        user.skills.includes(skill)
+      );
+      const matchScore = Math.round(
+        (commonSkills.length / job.requiredSkills.length) * 100
+      );
+      return { ...job._doc, matchScore };
+    });
+
+    res.json(jobsWithMatchScore);
+  } catch (error) {
+    console.error("Error in AI match:", error);
+    res.status(500).json({ message: "Failed to fetch AI matched jobs" });
   }
 };

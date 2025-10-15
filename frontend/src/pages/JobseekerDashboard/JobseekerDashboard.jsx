@@ -10,11 +10,11 @@ import axios from "axios";
 function JobseekerDashboard() {
   const [active, setActive] = useState("overview");
   const [user, setUser] = useState(null);
-  const [stats, setStats] = useState({
-    applied: 0,
-    saved: 0,
-    profileCompletion: 0,
-  });
+  // const [stats, setStats] = useState({
+  //   applied: 0,
+  //   saved: 0,
+  //   profileCompletion: 0,
+  // });
 
   // ✅ Fetch user info
   useEffect(() => {
@@ -36,25 +36,25 @@ function JobseekerDashboard() {
     fetchUserData();
   }, []);
 
-  // ✅ Fetch dashboard stats
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const stored = JSON.parse(localStorage.getItem("userInfo"));
-        const token = stored?.token;
+  // // ✅ Fetch dashboard stats
+  // useEffect(() => {
+  //   const fetchStats = async () => {
+  //     try {
+  //       const stored = JSON.parse(localStorage.getItem("userInfo"));
+  //       const token = stored?.token;
 
-        const res = await axios.get("http://localhost:5000/api/jobseeker/stats", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+  //       const res = await axios.get("http://localhost:5000/api/jobseeker/stats", {
+  //         headers: { Authorization: `Bearer ${token}` },
+  //       });
 
-        setStats(res.data);
-      } catch (err) {
-        console.error("Failed to fetch stats:", err);
-      }
-    };
+  //       setStats(res.data);
+  //     } catch (err) {
+  //       console.error("Failed to fetch stats:", err);
+  //     }
+  //   };
 
-    fetchStats();
-  }, []);
+  //   fetchStats();
+  // }, []);
 
   // ✅ Dynamic content based on active menu
   const renderContent = () => {
@@ -90,7 +90,7 @@ function JobseekerDashboard() {
         </header>
 
         {/* Stats Summary Bar */}
-        <section className="bg-white shadow-md mx-6 mt-4 rounded-lg p-4 grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {/* <section className="bg-white shadow-md mx-6 mt-4 rounded-lg p-4 grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="text-center">
             <p className="text-gray-500 text-sm">Jobs Applied</p>
             <h3 className="text-2xl font-bold text-blue-600">{stats.applied}</h3>
@@ -105,7 +105,7 @@ function JobseekerDashboard() {
               {stats.profileCompletion}%
             </h3>
           </div>
-        </section>
+        </section> */}
 
         {/* Main Section */}
         <main className="p-6">{renderContent()}</main>

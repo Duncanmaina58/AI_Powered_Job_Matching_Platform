@@ -36,6 +36,7 @@ function App() {
 
           {/* 👨‍💼 Job Seeker */}
           <Route path="/jobs" element={<Jobs />} />
+          <Route path="/BrowseJobs" element={<BrowseJobs />} />
           <Route path="/ai" element={<AIMatch />} />
           <Route path="/jobseeker/dashboard" element={<JobseekerDashboard />} />
           
