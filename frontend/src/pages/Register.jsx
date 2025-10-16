@@ -30,7 +30,7 @@ function Register() {
       const payload = { ...formData };
       if (formData.role !== "employer") delete payload.company_name;
 
-      const res = await axios.post("http://localhost:5000/api/users/register", payload);
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/users/register`, payload);
 
       if (res.data) {
         setSuccess("🎉 Registration successful! Redirecting to login...");

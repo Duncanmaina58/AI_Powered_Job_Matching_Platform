@@ -25,7 +25,7 @@ export default function BrowseJobs() {
   const fetchJobs = async () => {
     setLoading(true);
     try {
-      const res = await axios.get("http://localhost:5000/api/jobs");
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/jobs`);
       setJobs(res.data);
     } catch (err) {
       console.error("Error fetching jobs:", err);
@@ -68,7 +68,7 @@ export default function BrowseJobs() {
       if (cvFile) formData.append("cv", cvFile);
 
       const res = await axios.post(
-        `http://localhost:5000/api/jobs/${selectedJob._id}/apply`,
+        `${import.meta.env.VITE_API_URL}/api/jobs/${selectedJob._id}/apply`,
         formData,
         { headers: { Authorization: `Bearer ${token}` } }
       );
