@@ -1,7 +1,7 @@
 import JobApplication from "../models/Applicant.js";
 import User from "../models/User.js";
 import Applicant from "../models/Applicant.js";
-import Job from "../models/Job.js"; 
+import Job from "../models/job.js"; 
 import path from "path";
 import fs from "fs";
 

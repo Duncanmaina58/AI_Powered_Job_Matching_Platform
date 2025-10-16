@@ -1,4 +1,4 @@
-import Job from "../models/Job.js";
+import Job from "../models/job.js";
 import User from "../models/User.js";
 
 // Simple skill-based AI matching
