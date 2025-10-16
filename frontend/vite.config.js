@@ -7,7 +7,7 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
 
   // ✅ Make sure this matches your GitHub repo name exactly (case-sensitive)
-  base: '/AI_Powered_Job_Matching_Platform/',
+  base: '/',
 
   server: {
     proxy: {
