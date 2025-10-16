@@ -7,7 +7,7 @@ export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),],
-    base: '/AI_Powered_Job_Matching_Platform',
+    base: '/AI_Powered_Job_Matching_Platform/',
 
   
   
