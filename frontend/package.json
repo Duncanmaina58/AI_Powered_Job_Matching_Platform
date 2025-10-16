@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://duncanmaina58.github.io/AI_Powered_Job_Matching_Platform/",
+  "homepage": "https://Duncanmaina58.github.io/AI_Powered_Job_Matching_Platform/",
    "scripts": {
     "dev": "vite",
     "build": "vite build",
