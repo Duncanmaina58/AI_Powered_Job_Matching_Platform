@@ -1,6 +1,6 @@
 // Backend/controllers/jobController.js
 
-import Job from "../models/Job.js";
+import Job from "../models/job.js";
 import asyncHandler from "express-async-handler";
 import Applicant from "../models/Applicant.js";
 
