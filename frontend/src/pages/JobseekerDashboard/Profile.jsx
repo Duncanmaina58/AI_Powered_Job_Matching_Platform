@@ -54,7 +54,7 @@ const Profile = () => {
     const fetchProfile = useCallback(async () => {
         setLoading(true);
         try {
-            const { data } = await axios.get("http://localhost:5000/api/jobseeker/profile", {
+            const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/api/jobseeker/profile`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setUser(data);
@@ -64,7 +64,7 @@ const Profile = () => {
                 bio: data.bio || "",
                 skills: data.skills?.join(", ") || "",
             });
-            setProfileImagePreview(data.profileImage ? `http://localhost:5000${data.profileImage}` : null);
+            setProfileImagePreview(data.profileImage ? `${import.meta.env.VITE_API_URL}${data.profileImage}` : null);
         } catch (error) {
             console.error("Error fetching profile:", error);
             // Setting an error message for the user
@@ -110,7 +110,7 @@ const Profile = () => {
         clearMessage();
 
         try {
-            await axios.put("http://localhost:5000/api/jobseeker/profile", form, {
+            await axios.put(`${import.meta.env.VITE_API_URL}/api/jobseeker/profile`, form, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     "Content-Type": "multipart/form-data",
@@ -139,7 +139,7 @@ const Profile = () => {
             bio: user.bio || "",
             skills: user.skills?.join(", ") || "",
         });
-        setProfileImagePreview(user.profileImage ? `http://localhost:5000${user.profileImage}` : null);
+        setProfileImagePreview(user.profileImage ? `${import.meta.env.VITE_API_URL}${user.profileImage}` : null);
         clearMessage();
     };
 
@@ -301,7 +301,7 @@ const Profile = () => {
                             {/* Current Resume Display */}
                             {user.resume && (
                                 <a
-                                    href={`http://localhost:5000${user.resume}`}
+                                    href={`${import.meta.env.VITE_API_URL}${user.resume}`}
                                     target="_blank"
                                     rel="noreferrer"
                                     className="text-blue-600 flex items-center gap-2 font-medium hover:text-blue-800 transition mb-3"

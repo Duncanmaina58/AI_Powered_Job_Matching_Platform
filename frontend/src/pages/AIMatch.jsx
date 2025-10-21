@@ -20,7 +20,7 @@ const AIMatch = () => {
           return;
         }
 
-        const { data } = await axios.get("http://localhost:5000/api/jobseeker/ai-match", {
+        const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/api/jobseeker/ai-match`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 

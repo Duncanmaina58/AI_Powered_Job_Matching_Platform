@@ -67,7 +67,7 @@ export default function PostJob() {
         },
       };
 
-      await axios.post("http://localhost:5000/api/jobs", jobData, {
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/jobs`, jobData, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",

@@ -31,7 +31,7 @@ export default function MyJobs() {
           return;
         }
 
-        const res = await axios.get("http://localhost:5000/api/jobs/employer", {
+        const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/jobs/employer`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -53,7 +53,7 @@ export default function MyJobs() {
 
     try {
       const token = localStorage.getItem("token");
-      await axios.delete(`http://localhost:5000/api/jobs/${id}`, {
+      await axios.delete(`${import.meta.env.VITE_API_URL}/api/jobs/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 

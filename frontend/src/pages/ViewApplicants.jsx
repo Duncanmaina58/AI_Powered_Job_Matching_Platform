@@ -24,7 +24,7 @@ const ViewApplicants = () => {
     const fetchApplicants = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:5000/api/jobs/${jobId}/applicants`,
+          `${import.meta.env.VITE_API_URL}/api/jobs/${jobId}/applicants`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -54,7 +54,7 @@ const handleApplicantAction = async (applicantId, action) => {
     }
 
     await axios.put(
-      `http://localhost:5000/api/applications/${applicantId}/status`,
+      `${import.meta.env.VITE_API_URL}/api/applications/${applicantId}/status`,
       { status: action }, // the backend expects this key
       {
         headers: { Authorization: `Bearer ${token}` },

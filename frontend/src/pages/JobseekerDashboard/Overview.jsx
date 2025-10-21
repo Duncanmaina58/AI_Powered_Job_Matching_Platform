@@ -30,10 +30,10 @@ const Overview = () => {
         }
 
         const [profileRes, statsRes] = await Promise.all([
-          axios.get("http://localhost:5000/api/jobseeker/profile", {
+          axios.get(`${import.meta.env.VITE_API_URL}/api/jobseeker/profile`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          axios.get("http://localhost:5000/api/jobseeker/stats", {
+          axios.get(`${import.meta.env.VITE_API_URL}/api/jobseeker/stats`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
         ]);
@@ -60,7 +60,7 @@ const Overview = () => {
     if (!search.trim()) return;
     try {
       setLoading(true);
-      const res = await axios.get(`http://localhost:5000/api/jobs?search=${search}`);
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/jobs?search=${search}`);
       setJobs(res.data);
     } catch {
       setError("Failed to fetch jobs.");
@@ -90,7 +90,7 @@ const Overview = () => {
           <img
             src={
               user?.profileImage
-                ? `http://localhost:5000${user.profileImage}`
+                ? `${import.meta.env.VITE_API_URL}${user.profileImage}`
                 : "https://cdn-icons-png.flaticon.com/512/149/149071.png"
             }
             alt="Profile"

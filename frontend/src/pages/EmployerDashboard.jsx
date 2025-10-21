@@ -31,7 +31,7 @@ export default function EmployerDashboard() {
       const token = localStorage.getItem("token");
       if (!token) return navigate("/login");
 
-      const res = await axios.get("http://localhost:5000/api/users/profile", {
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/users/profile`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -47,7 +47,7 @@ export default function EmployerDashboard() {
     setError("");
     try {
       const token = localStorage.getItem("token");
-      const res = await axios.get("http://localhost:5000/api/jobs/", {
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/jobs/`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setJobs(res.data);
@@ -83,7 +83,7 @@ export default function EmployerDashboard() {
     if (!window.confirm("Are you sure you want to delete this job?")) return;
     try {
       const token = localStorage.getItem("token");
-      await axios.delete(`http://localhost:5000/api/jobs/${id}`, {
+      await axios.delete(`${import.meta.env.VITE_API_URL}/api/jobs/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       alert("✅ Job deleted successfully!");

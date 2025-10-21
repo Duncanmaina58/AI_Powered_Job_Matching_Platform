@@ -22,7 +22,7 @@ export default function ApplicantsPage() {
         }
 
         const res = await axios.get(
-          `http://localhost:5000/api/jobs/${id}/applicants`,
+          `${import.meta.env.VITE_API_URL}/api/jobs/${id}/applicants`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }

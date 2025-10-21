@@ -35,7 +35,7 @@ export default function EditJob() {
           return;
         }
 
-        const res = await axios.get(`http://localhost:5000/api/jobs/${id}`, {
+        const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/jobs/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -103,7 +103,7 @@ export default function EditJob() {
         status: formData.status,
       };
 
-      await axios.put(`http://localhost:5000/api/jobs/${id}`, updatedData, {
+      await axios.put(`${import.meta.env.VITE_API_URL}/api/jobs/${id}`, updatedData, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",

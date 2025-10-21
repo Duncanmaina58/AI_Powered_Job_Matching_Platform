@@ -81,7 +81,7 @@ const MyApplications = () => {
             setWithdrawMessage(null);
             const token = localStorage.getItem("token");
             if (!token) { throw new Error("Authentication token not found."); }
-            const res = await axios.get("http://localhost:5000/api/jobs/jobseeker/applications", { headers: { Authorization: `Bearer ${token}` } });
+            const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/jobs/jobseeker/applications`, { headers: { Authorization: `Bearer ${token}` } });
             setApplications(res.data);
             setLoading(false);
         } catch (err) {
