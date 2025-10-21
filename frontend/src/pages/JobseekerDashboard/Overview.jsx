@@ -91,7 +91,7 @@ const Overview = () => {
             src={
               user?.profileImage
                 ? `${import.meta.env.VITE_API_URL}${user.profileImage}`
-                : "https://cdn-icons-png.flaticon.com/512/149/149071.png"
+                : "/logo.png"
             }
             alt="Profile"
             className="w-20 h-20 rounded-full border-4 border-blue-400 shadow-md"
@@ -145,7 +145,7 @@ const Overview = () => {
         </motion.div>
         <motion.div>
           <img
-            src="https://cdn-icons-png.flaticon.com/512/4140/4140048.png"
+            src="/logo.png"
             alt="Job seeker"
             className="w-80 lg:w-[420px]"
           />
