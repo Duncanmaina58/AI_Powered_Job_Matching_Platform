@@ -16,7 +16,7 @@ const handleSubmit = async (e) => {
   setError("");
 
   try {
-    const { data } = await axios.post("/api/users/login", {
+    const { data } = await axios.post(`${import.meta.env.VITE_API_URL}/api/users/login`, {
       email,
       password,
       role,
