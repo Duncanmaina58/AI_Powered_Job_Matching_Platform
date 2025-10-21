@@ -21,7 +21,7 @@ app.use(
   cors({
     origin: [
       "http://localhost:5173",
-      "https://ai-powered-job-matching-platform.vercel.app",
+      "https://global-jobhub.vercel.app",
     ],
     credentials: true,
   })
