@@ -1,5 +1,7 @@
-import React, { useEffect, useState } from "react";
+// frontend/src/pages/EmployerDashboard.jsx
+import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
+import { io } from "socket.io-client";
 import {
   Briefcase,
   PlusCircle,
@@ -16,16 +18,63 @@ import {
   DollarSign,
 } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
+import Notifications from "../components/Notifications";
 
 export default function EmployerDashboard() {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [user, setUser] = useState(null); // 🆕 Store employer info (including avatar)
+  const [user, setUser] = useState(null);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [socket, setSocket] = useState(null);
   const navigate = useNavigate();
+  const bellRef = useRef(null);
 
-  // 🆕 Fetch Employer Profile (to show avatar + name)
+  // ✅ Initialize Socket.IO
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    const newSocket = io(import.meta.env.VITE_API_URL, {
+      auth: { token },
+      transports: ["websocket"],
+      reconnection: true,
+    });
+
+    setSocket(newSocket);
+
+    // ✅ Listen for new notifications
+    newSocket.on("newNotification", (data) => {
+      console.log("🔔 New notification:", data);
+      setNotifications((prev) => [data, ...prev]);
+
+      const audio = new Audio("/notification.mp3");
+      audio.play().catch(() => {});
+    });
+
+    return () => newSocket.disconnect();
+  }, []);
+
+  // ✅ Fetch notifications from backend
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await axios.get(
+          `${import.meta.env.VITE_API_URL}/api/notifications/me`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        setNotifications(res.data.reverse());
+      } catch (err) {
+        console.error("❌ Failed to fetch notifications:", err);
+      }
+    };
+    fetchNotifications();
+  }, []);
+
+  // ✅ Fetch Employer Profile
   const fetchEmployerProfile = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -34,7 +83,6 @@ export default function EmployerDashboard() {
       const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/users/profile`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-
       setUser(res.data);
     } catch (err) {
       console.error("Failed to fetch employer profile:", err);
@@ -59,12 +107,13 @@ export default function EmployerDashboard() {
     }
   };
 
+  // ✅ Load profile and jobs on mount
   useEffect(() => {
-    fetchEmployerProfile(); // 🆕 load avatar/name
+    fetchEmployerProfile();
     fetchEmployerJobs();
   }, []);
 
-  // 🧮 Stats
+  // ✅ Stats
   const totalJobs = jobs.length;
   const activeJobs = jobs.filter((job) => job.status === "Active").length;
   const totalApplicants = jobs.reduce(
@@ -72,13 +121,14 @@ export default function EmployerDashboard() {
     0
   );
 
-  // 🚪 Logout
+  // ✅ Logout
   const handleLogout = () => {
     localStorage.removeItem("token");
+    if (socket) socket.disconnect();
     navigate("/login");
   };
 
-  // 🗑️ Delete Job
+  // ✅ Delete Job
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this job?")) return;
     try {
@@ -93,6 +143,17 @@ export default function EmployerDashboard() {
       alert("❌ Could not delete job. Please try again.");
     }
   };
+
+  // ✅ Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (bellRef.current && !bellRef.current.contains(e.target)) {
+        setShowNotifications(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
     <div className="flex min-h-screen bg-gray-50 text-gray-800 relative">
@@ -139,16 +200,28 @@ export default function EmployerDashboard() {
             <h2 className="text-xl font-semibold">Employer Dashboard</h2>
           </div>
 
-          <div className="flex items-center gap-5">
-            <button className="relative text-gray-600 hover:text-blue-600">
+          <div className="flex items-center gap-5 relative" ref={bellRef}>
+            {/* 🔔 Notification Bell */}
+            <button
+              className="relative text-gray-600 hover:text-blue-600"
+              onClick={() => setShowNotifications(!showNotifications)}
+            >
               <Bell size={22} />
-              <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full"></span>
+              {notifications.length > 0 && (
+                <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full"></span>
+              )}
             </button>
 
-            {/* 🆕 Avatar + Name from DB */}
+            {showNotifications && (
+              <div className="absolute right-0 top-12 z-50">
+                <Notifications notifications={notifications} />
+              </div>
+            )}
+
+            {/* Avatar */}
             <div className="flex items-center gap-2">
               <img
-                src={user?.avatar || "https://i.pravatar.cc/40"} // 🆕 load actual uploaded avatar
+                src={user?.avatar || "https://i.pravatar.cc/40"}
                 alt="Profile"
                 className="w-9 h-9 rounded-full border border-gray-200 object-cover"
               />

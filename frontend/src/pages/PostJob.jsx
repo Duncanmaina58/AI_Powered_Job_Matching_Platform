@@ -66,6 +66,7 @@ export default function PostJob() {
           max: Number(formData.salary_max),
         },
       };
+console.log("📦 Job data being sent:", jobData);
 
       await axios.post(`${import.meta.env.VITE_API_URL}/api/jobs`, jobData, {
         headers: {

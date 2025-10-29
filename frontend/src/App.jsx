@@ -1,5 +1,10 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { Navigate } from "react-router-dom";
+// ✅ App.jsx
+import { Routes, Route, Navigate } from "react-router-dom";
+import { useEffect } from "react";
+import socket from "./utils/socket";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Jobs from "./pages/Jobs";
@@ -15,34 +20,64 @@ import ApplicantsPage from "./pages/ApplicantsPage";
 import BrowseJobs from "./pages/JobseekerDashboard/BrowseJobs";
 import JobseekerDashboard from "./pages/JobseekerDashboard/JobseekerDashboard";
 import ViewApplicants from "./pages/ViewApplicants";
-// import CreateJob from "./pages/CreateJob";
 import EditJob from "./pages/EditJob";
-/**
- * ✅ App.jsx — Routing structure for all pages.
- */
-function App() {
-  return (
-    <>
-      {/* Navbar visible on all pages */}
-      <Navbar />
+import ThemeProvider from "./Theme/ThemeProvider";
 
+function App() {
+  // ✅ Setup socket and toast notifications
+  useEffect(() => {
+    const userInfo = JSON.parse(localStorage.getItem("userInfo"));
+
+    if (!userInfo || !userInfo.token || !userInfo._id) {
+      if (socket && socket.connected) socket.disconnect();
+      return;
+    }
+
+    // connect socket
+    socket.connect();
+
+    // register the user on the backend via token
+    socket.emit("registerUser", { token: userInfo.token });
+
+    // listen for notifications from server
+    socket.on("newNotification", (payload) => {
+      const msg = payload?.message || "You have a new notification";
+      const type = payload?.type || "info";
+
+      if (type === "success") toast.success(msg);
+      else if (type === "warning") toast.warn(msg);
+      else if (type === "error") toast.error(msg);
+      else toast.info(msg);
+    });
+
+    // optional debugging
+    socket.on("connect", () => console.log("🔌 Socket connected:", socket.id));
+    socket.on("disconnect", () => console.log("❌ Socket disconnected"));
+
+    return () => {
+      socket.off("newNotification");
+      socket.off("connect");
+      socket.off("disconnect");
+      socket.disconnect();
+    };
+  }, []);
+
+  return (
+    <ThemeProvider>
+      <Navbar />
       <main style={styles.main}>
         <Routes>
-          {/* 🏠 Root — redirect to login */}
           <Route path="/" element={<Navigate to="/login" replace />} />
-
-          {/* 🔐 Auth Routes */}
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
 
-          {/* 👨‍💼 Job Seeker */}
+          {/* Job Seeker */}
           <Route path="/jobs" element={<Jobs />} />
           <Route path="/BrowseJobs" element={<BrowseJobs />} />
           <Route path="/ai" element={<AIMatch />} />
           <Route path="/jobseeker/dashboard" element={<JobseekerDashboard />} />
-          
 
-          {/* 🧑‍💼 Employer */}
+          {/* Employer */}
           <Route path="/employer/dashboard" element={<EmployerDashboard />} />
           <Route path="/employer/post-job" element={<PostJob />} />
           <Route path="/employer/manage-jobs" element={<ManageJobs />} />
@@ -50,24 +85,21 @@ function App() {
           <Route path="/employer/settings" element={<Settings />} />
           <Route path="/employer/profile" element={<Profile />} />
           <Route path="/employer/edit-job/:id" element={<EditJob />} />
-          
-<Route path="/employer/job/:id/applicants" element={<ApplicantsPage />} />
-<Route path="/employer/jobs/:jobId/applicants" element={<ViewApplicants />} />
+          <Route path="/employer/job/:id/applicants" element={<ApplicantsPage />} />
+          <Route path="/employer/jobs/:jobId/applicants" element={<ViewApplicants />} />
+          <Route path="/employer/jobs/:id/applicants" element={<ViewApplicants />} />
 
-<Route path="/employer/jobs/:id/applicants" element={<ViewApplicants />} />
-          {/* <Route path="/employer/Createjob" element={<CreateJob />} />  */}
-
-          {/* * ⚠️ Catch-all */}
+          {/* Catch-all */}
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </main>
-    </>
+
+      {/* Toast container for notifications */}
+      <ToastContainer position="bottom-right" autoClose={5000} />
+    </ThemeProvider>
   );
 }
 
-/**
- * 🎨 Global Layout Styles
- */
 const styles = {
   main: {
     minHeight: "100vh",

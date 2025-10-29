@@ -1,11 +1,11 @@
-import { useEffect, useState } from "react";
+// frontend/src/pages/JobseekerDashboard/Overview.jsx
+import { useEffect, useState, Fragment } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
-import { Loader2, AlertCircle, Search, MapPin, Clock } from "lucide-react";
+import { Loader2, Search, MapPin, Clock } from "lucide-react";
 import { Dialog, Transition } from "@headlessui/react";
-import { Fragment } from "react";
 
-const Overview = () => {
+const Overview = ({ darkMode }) => {
   const [stats, setStats] = useState([]);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -14,6 +14,12 @@ const Overview = () => {
   const [jobs, setJobs] = useState([]);
   const [selectedJob, setSelectedJob] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Keep local theme state synced with parent darkMode prop
+  const [isDark, setIsDark] = useState(darkMode);
+  useEffect(() => {
+    setIsDark(darkMode);
+  }, [darkMode]);
 
   // Fetch user + stats
   useEffect(() => {
@@ -69,7 +75,6 @@ const Overview = () => {
     }
   };
 
-  // Modal open handler
   const openModal = (job) => {
     setSelectedJob(job);
     setIsModalOpen(true);
@@ -78,14 +83,13 @@ const Overview = () => {
   const fadeInUp = { hidden: { opacity: 0, y: 40 }, visible: { opacity: 1, y: 0 } };
 
   return (
-    <div className="w-full bg-[#f9fbff] min-h-screen">
+    <div
+      className={`w-full min-h-screen transition-colors duration-300 ${
+        isDark ? "bg-gray-900 text-gray-100" : "bg-gray-50 text-gray-900"
+      }`}
+    >
       {/* Welcome + Stats */}
-      <motion.div
-        className="px-6 lg:px-20 pt-10 pb-6"
-        initial="hidden"
-        animate="visible"
-        variants={fadeInUp}
-      >
+      <motion.div className="px-6 lg:px-20 pt-10 pb-6" initial="hidden" animate="visible" variants={fadeInUp}>
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5">
           <img
             src={
@@ -97,10 +101,8 @@ const Overview = () => {
             className="w-20 h-20 rounded-full border-4 border-blue-400 shadow-md"
           />
           <div className="text-center sm:text-left">
-            <h2 className="text-3xl font-bold text-gray-800">
-              Welcome back, {user?.name || "Jobseeker"} 👋
-            </h2>
-            <p className="text-gray-500">{user?.email}</p>
+            <h2 className="text-3xl font-bold">Welcome back, {user?.name || "Jobseeker"} 👋</h2>
+            <p className={`${isDark ? "text-gray-400" : "text-gray-500"}`}>{user?.email}</p>
           </div>
         </div>
 
@@ -109,31 +111,51 @@ const Overview = () => {
           {stats.map((s, i) => (
             <div
               key={i}
-              className="bg-white p-6 rounded-xl shadow text-center border border-gray-100 hover:shadow-lg transition"
+              className={`p-6 rounded-xl shadow text-center border hover:shadow-lg transition ${
+                isDark
+                  ? "bg-gray-800 border-gray-700"
+                  : "bg-white border-gray-100"
+              }`}
             >
-              <h3 className="text-gray-500 font-medium">{s.title}</h3>
-              <p className="text-3xl font-bold text-blue-700 mt-2">{s.value ?? "--"}</p>
+              <h3 className={`${isDark ? "text-gray-400" : "text-gray-500"} font-medium`}>{s.title}</h3>
+              <p className="text-3xl font-bold text-blue-700 dark:text-blue-400 mt-2">
+                {s.value ?? "--"}
+              </p>
             </div>
           ))}
         </div>
       </motion.div>
 
       {/* Hero / Search Section */}
-      <section className="bg-gradient-to-r from-blue-50 to-blue-100 py-16 px-6 lg:px-20 flex flex-col-reverse lg:flex-row items-center justify-between gap-10">
+      <section
+        className={`py-16 px-6 lg:px-20 flex flex-col-reverse lg:flex-row items-center justify-between gap-10 transition-colors ${
+          isDark
+            ? "bg-gradient-to-r from-gray-800 to-gray-700"
+            : "bg-gradient-to-r from-blue-50 to-blue-100"
+        }`}
+      >
         <motion.div className="max-w-xl text-center lg:text-left">
-          <p className="text-blue-600 font-medium">We Have 200,000+ Live Jobs</p>
-          <h1 className="text-4xl lg:text-5xl font-extrabold text-gray-900 mt-2 leading-snug">
-            Your <span className="text-blue-600">Dream Job</span> Is Waiting For You
+          <p className="text-blue-600 dark:text-blue-400 font-medium">
+            We Have 200,000+ Live Jobs
+          </p>
+          <h1 className="text-4xl lg:text-5xl font-extrabold mt-2 leading-snug">
+            Your <span className="text-blue-600 dark:text-blue-400">Dream Job</span> Is Waiting For You
           </h1>
 
-          <div className="mt-6 bg-white shadow-md rounded-full flex items-center px-4 py-2 w-full max-w-lg mx-auto lg:mx-0">
-            <Search className="text-gray-400" size={20} />
+          <div
+            className={`mt-6 shadow-md rounded-full flex items-center px-4 py-2 w-full max-w-lg mx-auto lg:mx-0 ${
+              isDark ? "bg-gray-800" : "bg-white"
+            }`}
+          >
+            <Search className={`${isDark ? "text-gray-300" : "text-gray-400"}`} size={20} />
             <input
               type="text"
               placeholder="Job title, keywords..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="flex-1 px-3 py-2 border-none focus:ring-0 text-gray-700 outline-none"
+              className={`flex-1 px-3 py-2 border-none bg-transparent focus:ring-0 outline-none ${
+                isDark ? "text-gray-200" : "text-gray-700"
+              }`}
             />
             <button
               onClick={handleSearch}
@@ -143,19 +165,16 @@ const Overview = () => {
             </button>
           </div>
         </motion.div>
+
         <motion.div>
-          <img
-            src="/logo.png"
-            alt="Job seeker"
-            className="w-80 lg:w-[420px]"
-          />
+          <img src="/logo.png" alt="Job seeker" className="w-80 lg:w-[420px]" />
         </motion.div>
       </section>
 
       {/* Jobs Grid */}
       <div className="px-6 lg:px-20 py-12">
         {loading ? (
-          <div className="text-center text-gray-500">
+          <div className={`${isDark ? "text-gray-400" : "text-gray-500"} text-center`}>
             <Loader2 className="animate-spin inline-block mr-2" />
             Loading jobs...
           </div>
@@ -164,7 +183,11 @@ const Overview = () => {
             {jobs.map((job, i) => (
               <motion.div
                 key={i}
-                className="bg-white p-6 rounded-xl shadow hover:shadow-lg transition cursor-pointer"
+                className={`p-6 rounded-xl shadow hover:shadow-lg transition cursor-pointer border ${
+                  isDark
+                    ? "bg-gray-800 border-gray-700"
+                    : "bg-white border-gray-100"
+                }`}
                 onClick={() => openModal(job)}
                 whileHover={{ scale: 1.02 }}
               >
@@ -174,24 +197,28 @@ const Overview = () => {
                     alt={job.title}
                     className="w-12 h-12 rounded"
                   />
-                  <span className="text-xs bg-blue-100 text-blue-600 font-semibold px-2 py-1 rounded">
+                  <span className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 font-semibold px-2 py-1 rounded">
                     {job.jobType}
                   </span>
                 </div>
-                <h3 className="mt-4 font-bold text-gray-800">{job.title}</h3>
-                <p className="text-sm text-gray-500">{job.company}</p>
-                <p className="flex items-center text-gray-600 text-sm mt-2">
+                <h3 className="mt-4 font-bold">{job.title}</h3>
+                <p className={`${isDark ? "text-gray-400" : "text-gray-500"} text-sm`}>
+                  {job.company}
+                </p>
+                <p className="flex items-center text-sm mt-2">
                   <MapPin size={14} className="mr-1" /> {job.location}
                 </p>
-                <p className="flex items-center text-gray-600 text-sm">
+                <p className="flex items-center text-sm">
                   <Clock size={14} className="mr-1" /> {job.postedAt || "1 day ago"}
                 </p>
-                <p className="text-blue-700 font-bold mt-3">${job.salary}/month</p>
+                <p className="text-blue-700 dark:text-blue-400 font-bold mt-3">${job.salary}/month</p>
               </motion.div>
             ))}
           </div>
         ) : (
-          <p className="text-center text-gray-500">No jobs found. Try another search.</p>
+          <p className={`${isDark ? "text-gray-400" : "text-gray-500"} text-center`}>
+            No jobs found. Try another search.
+          </p>
         )}
       </div>
 
@@ -207,7 +234,7 @@ const Overview = () => {
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <div className="fixed inset-0 bg-black bg-opacity-25" />
+            <div className="fixed inset-0 bg-black/40 dark:bg-black/60" />
           </Transition.Child>
 
           <div className="fixed inset-0 overflow-y-auto flex items-center justify-center p-4">
@@ -220,13 +247,21 @@ const Overview = () => {
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-90"
             >
-              <Dialog.Panel className="w-full max-w-lg bg-white p-6 rounded-2xl shadow-xl">
-                <Dialog.Title className="text-xl font-bold text-gray-800 mb-2">
+              <Dialog.Panel
+                className={`w-full max-w-lg p-6 rounded-2xl shadow-xl transition-colors ${
+                  isDark ? "bg-gray-800 text-gray-100" : "bg-white text-gray-900"
+                }`}
+              >
+                <Dialog.Title className="text-xl font-bold mb-2">
                   {selectedJob?.title}
                 </Dialog.Title>
-                <p className="text-gray-500 mb-4">{selectedJob?.company}</p>
-                <p className="text-gray-600 mb-3">{selectedJob?.description}</p>
-                <div className="flex justify-between text-sm text-gray-500">
+                <p className={`${isDark ? "text-gray-400" : "text-gray-500"} mb-4`}>
+                  {selectedJob?.company}
+                </p>
+                <p className={`${isDark ? "text-gray-300" : "text-gray-600"} mb-3`}>
+                  {selectedJob?.description}
+                </p>
+                <div className={`flex justify-between text-sm ${isDark ? "text-gray-400" : "text-gray-500"}`}>
                   <span>📍 {selectedJob?.location}</span>
                   <span>💰 ${selectedJob?.salary}/month</span>
                 </div>

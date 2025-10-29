@@ -2,7 +2,7 @@
 import { Home, Briefcase, User, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-const Sidebar = ({ active, setActive }) => {
+const Sidebar = ({ active, setActive, darkMode }) => {
   const navigate = useNavigate();
 
   const menuItems = [
@@ -11,15 +11,19 @@ const Sidebar = ({ active, setActive }) => {
     { id: "applications", label: "My Applications", icon: <Briefcase size={18} /> },
     { id: "profile", label: "Profile", icon: <User size={18} /> },
   ];
-  
 
   const handleLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("userInfo");
     navigate("/login");
   };
 
   return (
-    <div className="h-screen w-64 bg-blue-700 text-white flex flex-col p-4">
+    <div
+      className={`h-full md:h-screen w-64 flex flex-col p-4 transition-colors ${
+        darkMode ? "bg-gray-800 text-gray-100" : "bg-blue-700 text-white"
+      }`}
+    >
       <h1 className="text-2xl font-bold mb-8 text-center">JobSeeker</h1>
 
       <nav className="flex flex-col gap-3 flex-1">
@@ -28,7 +32,13 @@ const Sidebar = ({ active, setActive }) => {
             key={item.id}
             onClick={() => setActive(item.id)}
             className={`flex items-center gap-3 px-4 py-2 rounded-lg transition-colors ${
-              active === item.id ? "bg-blue-900" : "hover:bg-blue-800"
+              active === item.id
+                ? darkMode
+                  ? "bg-gray-700"
+                  : "bg-blue-900"
+                : darkMode
+                ? "hover:bg-gray-700"
+                : "hover:bg-blue-800"
             }`}
           >
             {item.icon}
@@ -39,7 +49,11 @@ const Sidebar = ({ active, setActive }) => {
 
       <button
         onClick={handleLogout}
-        className="flex items-center gap-3 px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 transition-colors"
+        className={`flex items-center gap-3 px-4 py-2 rounded-lg transition-colors ${
+          darkMode
+            ? "bg-red-600 hover:bg-red-700"
+            : "bg-red-600 hover:bg-red-700"
+        }`}
       >
         <LogOut size={18} />
         <span>Logout</span>

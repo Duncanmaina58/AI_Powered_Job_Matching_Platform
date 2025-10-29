@@ -29,7 +29,9 @@ function Register() {
       // Only include company_name if role is employer
       const payload = { ...formData };
       if (formData.role !== "employer") delete payload.company_name;
+      
 console.log("Sending to:", `${import.meta.env.VITE_API_URL}/api/users/register`);
+console.log("Data being sent:", formData);
 
       const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/users/register`, payload);
 

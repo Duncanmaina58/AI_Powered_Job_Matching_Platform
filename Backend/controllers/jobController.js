@@ -3,6 +3,8 @@
 import Job from "../models/job.js";
 import asyncHandler from "express-async-handler";
 import Applicant from "../models/Applicant.js";
+import Notification from "../models/Notification.js";
+import { io, onlineUsers } from "../server.js"; // import socket server
 
 // Helper function to get company name
 const getCompanyName = (req) => req.user.company_name || "N/A Company Name";
@@ -34,13 +36,37 @@ export const createJob = asyncHandler(async (req, res) => {
     title,
     description,
     user: req.user._id,
-    company: getCompanyName(req),
+    company: req.user.company_name || "N/A Company",
     location,
     required_skills,
     salary_range,
   });
 
   const createdJob = await job.save();
+
+  // Notify matching jobseekers (simple skill overlap match)
+  try {
+    const candidates = await User.find({
+      role: "jobseeker",
+      skills: { $in: required_skills },
+    }).limit(100);
+
+    candidates.forEach((candidate) => {
+      const socketId = onlineUsers.get(candidate._id.toString());
+      if (socketId) {
+        io.to(socketId).emit("newNotification", {
+          message: `New job match: ${job.title} at ${job.company_name}`,
+          type: "info",
+          jobId: createdJob._id,
+        });
+      } else {
+        // Optionally persist to DB for offline users (not implemented here)
+      }
+    });
+  } catch (err) {
+    console.error("Notification error (createJob):", err);
+  }
+
   res.status(201).json(createdJob);
 });
 
@@ -148,11 +174,42 @@ export const applyForJob = asyncHandler(async (req, res) => {
     coverLetter,
     cv,
     user: req.user ? req.user._id : null,
-    
   });
 
   job.applicants.push(applicant._id);
   await job.save();
+
+
+  
+ // 🔔 Send real-time notification to employer
+  const employerId = job.user.toString(); // employer's userId
+  const employerSocketId = onlineUsers.get(employerId);
+
+  if (employerSocketId) {
+    io.to(employerSocketId).emit("newNotification", {
+      message: `${name} just applied to your job: ${job.title}`,
+      type: "info",
+      data: { jobId, applicantId: applicant._id },
+    });
+  }
+
+  // Notify employer if online
+  try {
+    const employerId = job.user.toString();
+    const socketId = onlineUsers.get(employerId);
+    if (socketId) {
+      io.to(socketId).emit("newNotification", {
+        message: `New application for ${job.title} from ${name}`,
+        type: "info",
+        jobId,
+        applicantId: applicant._id,
+      });
+    } else {
+      // Optionally persist to DB for offline employer
+    }
+  } catch (err) {
+    console.error("Notification error (applyForJob):", err);
+  }
 
   res.status(201).json({
     message: "Application submitted successfully!",
