@@ -4,6 +4,7 @@ import Application from "../models/Applicant.js";
 import Notification from "../models/Notification.js";
 import { io, onlineUsers } from "../server.js"; // Import socket and online users map
 import asyncHandler from "express-async-handler";
+import Applicant from "../models/Applicant.js";
 
 /**
  * @desc Apply for a job
@@ -100,55 +101,49 @@ export const getEmployerApplications = asyncHandler(async (req, res) => {
  * @route PUT /api/applications/:id/status
  * @access Employer
  */
-export const updateApplicationStatus = asyncHandler(async (req, res) => {
-  const { id } = req.params;
-  const { status } = req.body;
+export const updateApplicationStatus = async (req, res) => {
+  try {
+    const { id } = req.params; // applicant ID
+    const { status } = req.body;
 
-  const application = await Application.findById(id)
-    .populate("applicant", "name email _id")
-    .populate("job", "title employer");
+    console.log("🔹 Incoming status update:", id, { status });
 
-  if (!application) {
-    return res.status(404).json({ message: "Application not found" });
+    // ✅ Update applicant status and populate job + user
+    const application = await Applicant.findByIdAndUpdate(
+      id,
+      { status },
+      { new: true }
+    )
+      .populate("job")
+      .populate("user"); // ✅ Correct field name
+
+    if (!application) {
+      return res.status(404).json({ message: "Application not found" });
+    }
+
+    // ✅ Create notification for the applicant (if registered)
+    if (application.user) {
+      const message = `Your application for ${application.job.title} was ${status}.`;
+
+      await Notification.create({
+        user: application.user._id,
+        message,
+      });
+
+      // ✅ Emit real-time notification if user is online
+      const applicantSocket = onlineUsers.get(application.user._id.toString());
+      if (applicantSocket) {
+        io.to(applicantSocket).emit("newNotification", { message });
+        console.log("📨 Real-time notification sent to:", application.user._id);
+      }
+    }
+
+    res.json(application);
+  } catch (error) {
+    console.error("❌ Error updating application status:", error);
+    res.status(500).json({ message: "Server error" });
   }
-
-  // Ensure the employer owns the job
-  if (application.job.employer.toString() !== req.user._id.toString()) {
-    return res.status(403).json({ message: "Not authorized to update this application" });
-  }
-
-  // Update status
-  application.status = status;
-  await application.save();
-
-  // Create notification
-  const notification = {
-    title: "Application Status Updated",
-    message: `Your application for "${application.job.title}" was ${status}.`,
-    type: "application_status",
-    timestamp: new Date(),
-  };
-
-  await Notification.create({
-    user: application.applicant._id,
-    ...notification,
-  });
-
-  // Emit via socket if online
-  const applicantSocket = onlineUsers.get(application.applicant._id.toString());
-  if (applicantSocket) {
-    io.to(applicantSocket).emit("newNotification", notification);
-    console.log(`🔔 Sent notification to ${application.applicant.name}`);
-  } else {
-    console.log(`📪 ${application.applicant.name} is offline`);
-  }
-
-  res.json({
-    message: "Application status updated successfully",
-    application,
-  });
-});
-
+};
 /**
  * @desc Delete an application (optional)
  * @route DELETE /api/applications/:id

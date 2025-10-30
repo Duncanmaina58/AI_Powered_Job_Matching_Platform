@@ -23,6 +23,8 @@ const ViewApplicants = () => {
   useEffect(() => {
     const fetchApplicants = async () => {
       try {
+
+        
         const response = await axios.get(
           `${import.meta.env.VITE_API_URL}/api/jobs/${jobId}/applicants`,
           {
@@ -52,6 +54,7 @@ const handleApplicantAction = async (applicantId, action) => {
       alert("⚠️ Please log in again to perform this action.");
       return;
     }
+
 
     await axios.put(
       `${import.meta.env.VITE_API_URL}/api/applications/${applicantId}/status`,

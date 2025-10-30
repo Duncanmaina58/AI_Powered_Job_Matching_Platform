@@ -44,6 +44,10 @@ export default function EmployerDashboard() {
     });
 
     setSocket(newSocket);
+  newSocket.on("connect", () => {
+    console.log("🟢 Socket connected:", newSocket.id);
+    newSocket.emit("registerUser", { token });
+  });
 
     // ✅ Listen for new notifications
     newSocket.on("newNotification", (data) => {
@@ -54,26 +58,37 @@ export default function EmployerDashboard() {
       audio.play().catch(() => {});
     });
 
+      newSocket.on("disconnect", (reason) => {
+    console.log("🔴 Socket disconnected:", reason);
+  });
+
     return () => newSocket.disconnect();
   }, []);
 
   // ✅ Fetch notifications from backend
-  useEffect(() => {
+   useEffect(() => {
     const fetchNotifications = async () => {
       try {
-        const token = localStorage.getItem("token");
+        const stored = JSON.parse(localStorage.getItem("userInfo"));
+        const token = stored?.token;
         const res = await axios.get(
           `${import.meta.env.VITE_API_URL}/api/notifications/me`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         setNotifications(res.data.reverse());
       } catch (err) {
-        console.error("❌ Failed to fetch notifications:", err);
+        console.error("Failed to fetch notifications:", err);
       }
     };
     fetchNotifications();
   }, []);
 
+
+
+
+
+
+  
   // ✅ Fetch Employer Profile
   const fetchEmployerProfile = async () => {
     try {
