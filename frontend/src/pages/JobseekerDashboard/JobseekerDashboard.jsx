@@ -51,29 +51,37 @@ function JobseekerDashboard() {
   }, []);
 
   // ✅ Setup Socket.io
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
+useEffect(() => {
+  const stored = JSON.parse(localStorage.getItem("userInfo"));
+  const token = stored?.token;
+  if (!token) return;
 
-    const newSocket = io(import.meta.env.VITE_API_URL, {
-      auth: { token },
-      transports: ["websocket"],
-      reconnection: true,
-    });
+  const newSocket = io(import.meta.env.VITE_API_URL, {
+    auth: { token },
+    transports: ["websocket"],
+    reconnection: true,
+  });
 
-    setSocket(newSocket);
+  setSocket(newSocket);
 
+  newSocket.on("connect", () => {
+    console.log("🟢 Socket connected:", newSocket.id);
     newSocket.emit("registerUser", { token });
+  });
 
-    newSocket.on("newNotification", (data) => {
-      console.log("🔔 Notification received:", data);
-      setNotifications((prev) => [data, ...prev]);
-      const audio = new Audio("/notification.mp3");
-      audio.play().catch(() => {});
-    });
+  newSocket.on("newNotification", (data) => {
+    console.log("🔔 Notification received:", data);
+    setNotifications((prev) => [data, ...prev]);
+    const audio = new Audio("/notification.mp3");
+    audio.play().catch(() => {});
+  });
 
-    return () => newSocket.disconnect();
-  }, []);
+  newSocket.on("disconnect", (reason) => {
+    console.log("🔴 Socket disconnected:", reason);
+  });
+
+  return () => newSocket.disconnect();
+}, []);
 
   // ✅ Fetch notifications
   useEffect(() => {

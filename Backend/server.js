@@ -49,10 +49,10 @@ app.use(
 );
 
 
-app.use("/uploads", cors({
-  origin: allowedOrigins,
-  credentials: true,
-}));
+// app.use("/uploads", cors({
+//   origin: allowedOrigins,
+//   credentials: true,
+// }));
 
 // ✅ Enable CORS for uploads as well
 app.use("/uploads", cors({
