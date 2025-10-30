@@ -18,35 +18,37 @@ const AIMatch = ({ darkMode }) => {
     const textSecondaryClass = darkMode ? "text-gray-400" : "text-gray-600";
     const modalBgClass = darkMode ? "bg-gray-800" : "bg-white";
 
-    useEffect(() => {
-        const fetchAIMatches = async () => {
-            try {
-                const userInfo = JSON.parse(localStorage.getItem("userInfo"));
-                const token = userInfo?.token;
+useEffect(() => {
+    const fetchAIMatches = async () => {
+        try {
+            const userInfo = JSON.parse(localStorage.getItem("userInfo"));
+            const token = userInfo?.token;
 
-                if (!token) {
-                    setError("⚠️ Please log in to view your AI job matches.");
-                    setLoading(false);
-                    return;
-                }
-
-                const { data } = await axios.get(
-                    `${import.meta.env.VITE_API_URL}/api/jobseeker/ai-match`,
-                    { headers: { Authorization: `Bearer ${token}` } }
-                );
-
-                // Assuming the backend returns an array of job objects
-                setJobs(data || []);
-            } catch (err) {
-                console.error("Error fetching AI-matched jobs:", err);
-                setError("❌ Failed to load AI job matches. Try again later.");
-            } finally {
+            if (!token) {
+                setError("⚠️ Please log in to view your AI job matches.");
                 setLoading(false);
+                return;
             }
-        };
 
-        fetchAIMatches();
-    }, []);
+            const { data } = await axios.get(
+                `${import.meta.env.VITE_API_URL}/api/ai/match/jobs`,
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+
+            console.log("AI Match response:", data); // 👀 For debugging
+
+            // ✅ Extract the array correctly
+            setJobs(data.matched_jobs || []);
+        } catch (err) {
+            console.error("Error fetching AI-matched jobs:", err);
+            setError("❌ Failed to load AI job matches. Try again later.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    fetchAIMatches();
+}, []);
 
     const handleSaveJob = async (jobId) => {
         try {

@@ -1,9 +1,10 @@
 import express from "express";
-import { matchJobsForUser } from "../controllers/aiController.js";
+import { getAIMatchedJobs } from "../controllers/aiController.js";
+import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-// Get AI-matched jobs for a user
-router.get("/match/:userId", matchJobsForUser);
+// Protected route for jobseeker to get AI job matches
+router.get("/match/:userId", protect, getAIMatchedJobs);
 
 export default router;

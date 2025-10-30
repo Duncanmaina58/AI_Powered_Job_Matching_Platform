@@ -37,7 +37,10 @@ const jobSchema = new mongoose.Schema(
     required_skills: {
       type: [String],
       required: [true, "Please list required skills for the AI matcher"],
+    
     },
+
+
 
     // 💰 Salary Range
     salary_range: {

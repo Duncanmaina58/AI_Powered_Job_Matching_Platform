@@ -38,12 +38,11 @@ const userSchema = new mongoose.Schema(
       type: String, // path or URL to uploaded resume
       default: "",
     },
-    skills: [
-      {
-        type: String,
-        trim: true,
-      },
-    ],
+    skills: {
+  type: [String],
+  default: [],
+},
+
     bio: {
       type: String,
       trim: true,

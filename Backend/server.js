@@ -96,13 +96,14 @@ app.get("/api", (req, res) => {
 
 // ✅ Routes
 app.use("/api/jobs", jobRoutes);
+app.use("/api/ai/match", matchRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/ai", aiRoutes);
 app.use("/api/jobseeker", jobseekerRoutes);
 app.use("/api/applications", applicationRoutes);
 app.use("/uploads", express.static("uploads"));
 app.use("/api/notifications", notificationRoutes);
-app.use("/api/match", matchRoutes);
+
 // ✅ Start server
 const PORT = process.env.PORT || 5000;
 const server = http.createServer(app);
