@@ -112,7 +112,7 @@ const MyApplications = ({ darkMode }) => {
         try {
             const token = localStorage.getItem("token");
             // NOTE: The original URL had a hardcoded localhost. I'm keeping it for consistency but recommend using an environment variable.
-            await axios.delete(`http://localhost:5000/api/jobs/jobseeker/applications/${appToWithdraw._id}`, { headers: { Authorization: `Bearer ${token}` } });
+            await axios.delete(`${import.meta.env.VITE_API_URL}/api/jobs/jobseeker/applications/${appToWithdraw._id}`, { headers: { Authorization: `Bearer ${token}` } });
             setApplications((prev) => prev.filter((app) => app._id !== appToWithdraw._id));
             setWithdrawMessage({ type: 'success', text: "Application withdrawn successfully!" });
         } catch (err) {
