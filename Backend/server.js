@@ -1,5 +1,8 @@
 // ✅ server.js
 import express from "express";
+import fs from "fs";
+
+import multer from "multer";
 import http from "http"; // ✅ Needed for socket.io
 import { Server } from "socket.io";
 import dotenv from "dotenv";
@@ -71,6 +74,7 @@ app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+app.use("/uploads", express.static(path.join(__dirname, "/uploads")));
 
 
 
@@ -103,6 +107,22 @@ app.use("/api/jobseeker", jobseekerRoutes);
 app.use("/api/applications", applicationRoutes);
 app.use("/uploads", express.static("uploads"));
 app.use("/api/notifications", notificationRoutes);
+
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const dir = path.join("uploads", "avatars");
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true }); // ✅ auto-create folders
+    }
+    cb(null, dir);
+  },
+  filename: (req, file, cb) => {
+    cb(null, `${Date.now()}-${file.originalname}`);
+  },
+});
+
+export const upload = multer({ storage });
 
 // ✅ Start server
 const PORT = process.env.PORT || 5000;
@@ -153,6 +173,7 @@ io.on("connection", (socket) => {
 });
 // Export io and onlineUsers if you want to use them in controllers
 export { io, onlineUsers };
+
 
 server.listen(PORT, () => {
   console.log(`🚀 Server running in ${process.env.NODE_ENV || "development"} on port ${PORT}`);

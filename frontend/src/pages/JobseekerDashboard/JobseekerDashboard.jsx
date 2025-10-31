@@ -72,7 +72,7 @@ useEffect(() => {
   newSocket.on("newNotification", (data) => {
     console.log("🔔 Notification received:", data);
     setNotifications((prev) => [data, ...prev]);
-    const audio = new Audio("/notification.mp3");
+    const audio = new Audio("../assets/notification.mp3");
     audio.play().catch(() => {});
   });
 

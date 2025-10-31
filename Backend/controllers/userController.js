@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import multer from "multer";
 import path from "path";
 import bcrypt from "bcryptjs";
+import fs from "fs";
 
 /**
  * @desc Register a new user (Employer or Jobseeker)
@@ -141,7 +142,7 @@ export const updateUserProfile = asyncHandler(async (req, res) => {
  * @access Private
  */
 export const changeUserPassword = asyncHandler(async (req, res) => {
-  const { current, newPassword } = req.body;
+  const { oldPassword, newPassword } = req.body;  // ✅ Changed this
 
   const user = await User.findById(req.user._id);
   if (!user) {
@@ -149,7 +150,7 @@ export const changeUserPassword = asyncHandler(async (req, res) => {
     throw new Error("User not found");
   }
 
-  const isMatch = await bcrypt.compare(current, user.password);
+  const isMatch = await bcrypt.compare(oldPassword, user.password);
   if (!isMatch) {
     res.status(400);
     throw new Error("Current password is incorrect");
@@ -167,10 +168,18 @@ export const changeUserPassword = asyncHandler(async (req, res) => {
 ========================== */
 const storage = multer.diskStorage({
   destination(req, file, cb) {
-    if (file.fieldname === "avatar") cb(null, "uploads/avatars/");
-    else if (file.fieldname === "logo") cb(null, "uploads/logos/");
-    else if (file.fieldname === "resume") cb(null, "uploads/resumes/");
-    else cb(null, "uploads/");
+    let uploadDir = "uploads/";
+
+    if (file.fieldname === "avatar") uploadDir = "uploads/avatars/";
+    else if (file.fieldname === "logo") uploadDir = "uploads/logos/";
+    else if (file.fieldname === "resume") uploadDir = "uploads/resumes/";
+
+    // ✅ Ensure directory exists
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+
+    cb(null, uploadDir);
   },
   filename(req, file, cb) {
     cb(null, `${req.user._id}-${Date.now()}${path.extname(file.originalname)}`);
@@ -196,11 +205,19 @@ export const upload = multer({
  * @access Private
  */
 export const uploadAvatar = asyncHandler(async (req, res) => {
-  if (!req.file) return res.status(400).json({ message: "No image uploaded" });
+  if (!req.file) {
+    return res.status(400).json({ message: "No image uploaded" });
+  }
+
+  const user = await User.findById(req.user._id);
+  if (!user) {
+    res.status(404);
+    throw new Error("User not found");
+  }
 
   const imagePath = `/uploads/avatars/${req.file.filename}`;
-  req.user.avatar = imagePath;
-  await req.user.save();
+  user.avatar = imagePath;
+  await user.save();
 
   res.json({ message: "Avatar uploaded successfully", avatar: imagePath });
 });

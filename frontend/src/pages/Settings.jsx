@@ -26,58 +26,79 @@ export default function Settings() {
     }
   }, []);
 
-  const handleProfileUpdate = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setMessage("");
-    setError("");
+ const handleProfileUpdate = async (e) => {
+  e.preventDefault();
+  setLoading(true);
+  setMessage("");
+  setError("");
 
-    try {
-      const { token } = JSON.parse(localStorage.getItem("userInfo")) || {};
-      const { data } = await axios.put(`${import.meta.env.VITE_API_URL}/api/users/profile`,
-        { name: form.name, email: form.email },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-
-      localStorage.setItem("userInfo", JSON.stringify(data));
-      setUserInfo(data);
-      setMessage("✅ Profile updated successfully!");
-    } catch (err) {
-      console.error(err);
-      setError("Failed to update profile.");
-    } finally {
-      setLoading(false);
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setError("User not authenticated. Please log in again.");
+      return;
     }
-  };
 
-  const handleAvatarUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+    const { data } = await axios.put(
+      `${import.meta.env.VITE_API_URL}/api/users/profile`,
+      { name: form.name, email: form.email },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
-    
-    setPreview(URL.createObjectURL(file));
+    localStorage.setItem("userInfo", JSON.stringify(data));
+    setUserInfo(data);
+    setMessage("✅ Profile updated successfully!");
+  } catch (err) {
+    console.error("Profile Update Error:", err);
+    setError("❌ Failed to update profile. Please re-login.");
+  } finally {
+    setLoading(false);
+  }
+};
 
-    const formData = new FormData();
-    formData.append("avatar", file);
 
-    try {
-      const { token } = JSON.parse(localStorage.getItem("userInfo")) || {};
-      const { data } = await axios.post(`${import.meta.env.VITE_API_URL}/api/users/upload-avatar`, formData, {
+const handleAvatarUpload = async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  setPreview(URL.createObjectURL(file));
+
+  const formData = new FormData();
+  formData.append("avatar", file);
+
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setError("User not authenticated. Please log in again.");
+      return;
+    }
+
+    const { data } = await axios.post(
+      `${import.meta.env.VITE_API_URL}/api/users/upload-avatar`,
+      formData,
+      {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
         },
-      });
+      }
+    );
 
-      setMessage("✅ Avatar uploaded!");
-      const updatedUser = { ...userInfo, avatar: data.avatar };
-      localStorage.setItem("userInfo", JSON.stringify(updatedUser));
-      setUserInfo(updatedUser);
-    } catch (err) {
-      console.error(err);
-      setError("❌ Failed to upload avatar.");
-    }
-  };
+    setMessage("✅ Avatar uploaded!");
+    const updatedUser = { ...userInfo, avatar: data.avatar };
+    localStorage.setItem("userInfo", JSON.stringify(updatedUser));
+    setUserInfo(updatedUser);
+  } catch (err) {
+    console.error("Avatar Upload Error:", err);
+    setError("❌ Failed to upload avatar.");
+  }
+};
+
 
   return (
     <div className="min-h-screen bg-gray-50 p-6 flex justify-center">
