@@ -5,7 +5,7 @@ import asyncHandler from "express-async-handler";
 import Applicant from "../models/Applicant.js";
 import Notification from "../models/Notification.js";
 import { io, onlineUsers } from "../server.js"; // import socket server
-
+import { sendJobApplicationEmail } from "../utils/mailer.js";
 // Helper function to get company name
 const getCompanyName = (req) => req.user.company_name || "N/A Company Name";
 
@@ -209,6 +209,13 @@ export const applyForJob = asyncHandler(async (req, res) => {
     }
   } catch (err) {
     console.error("Notification error (applyForJob):", err);
+  }
+
+  try {
+    await sendJobApplicationEmail(email, name, job.title, job.company);
+    console.log(`✅ Application email sent to ${email}`);
+  } catch (err) {
+    console.error("❌ Failed to send application email:", err.message);
   }
 
   res.status(201).json({

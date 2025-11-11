@@ -36,8 +36,9 @@ function JobseekerDashboard() {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const stored = JSON.parse(localStorage.getItem("userInfo"));
-        const token = stored?.token;
+        const storedUser = JSON.parse(localStorage.getItem("userInfo")) || JSON.parse(localStorage.getItem("user"));
+const token = storedUser?.token || localStorage.getItem("token");
+
         const res = await axios.get(
           `${import.meta.env.VITE_API_URL}/api/users/me`,
           { headers: { Authorization: `Bearer ${token}` } }
@@ -52,8 +53,9 @@ function JobseekerDashboard() {
 
   // ✅ Setup Socket.io
 useEffect(() => {
-  const stored = JSON.parse(localStorage.getItem("userInfo"));
-  const token = stored?.token;
+  const storedUser = JSON.parse(localStorage.getItem("userInfo")) || JSON.parse(localStorage.getItem("user"));
+const token = storedUser?.token || localStorage.getItem("token");
+
   if (!token) return;
 
   const newSocket = io(import.meta.env.VITE_API_URL, {
@@ -87,8 +89,9 @@ useEffect(() => {
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
-        const stored = JSON.parse(localStorage.getItem("userInfo"));
-        const token = stored?.token;
+       const storedUser = JSON.parse(localStorage.getItem("userInfo")) || JSON.parse(localStorage.getItem("user"));
+const token = storedUser?.token || localStorage.getItem("token");
+
         const res = await axios.get(
           `${import.meta.env.VITE_API_URL}/api/notifications/me`,
           { headers: { Authorization: `Bearer ${token}` } }
@@ -222,21 +225,27 @@ useEffect(() => {
                     No notifications
                   </p>
                 ) : (
-                  notifications.map((n, i) => (
-                    <div
-                      key={i}
-                      className={`p-3 border-b ${
-                        darkMode
-                          ? "border-gray-700 hover:bg-gray-700"
-                          : "border-gray-100 hover:bg-gray-50"
-                      } transition`}
-                    >
-                      <p className="font-semibold text-sm">{n.title}</p>
-                      <p className="text-xs mt-1">{n.message}</p>
-                      <p className="text-[11px] opacity-70 mt-1">
-                        {new Date(n.timestamp).toLocaleTimeString()}
-                      </p>
-                    </div>
+                 notifications.map((n, i) => (
+  <div
+    key={i}
+    className={`p-3 border-b ${
+      darkMode
+        ? "border-gray-700 hover:bg-gray-700"
+        : "border-gray-100 hover:bg-gray-50"
+    } transition cursor-pointer`}
+    onClick={() => {
+      if (n.jobs && n.jobs.length > 0) {
+        setActive("aimatch"); // switch to AI Match page
+        setShowNotifications(false);
+      }
+    }}
+  >
+    <p className="font-semibold text-sm">{n.title}</p>
+    <p className="text-xs mt-1">{n.message}</p>
+    <p className="text-[11px] opacity-70 mt-1">
+      {new Date(n.timestamp).toLocaleTimeString()}
+    </p>
+  </div>
                   ))
                 )}
               </div>

@@ -1,50 +1,53 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-
+import Google from "../assets/google-icon.jpg";
+import Microsoft from "../assets/microsoft-icon2.jpg";
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("jobseeker"); // ✅ Default role
+  const [role, setRole] = useState("jobseeker");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  setLoading(true);
-  setError("");
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
 
-  try {
-    const { data } = await axios.post(`${import.meta.env.VITE_API_URL}/api/users/login`, {
-      email,
-      password,
-      role,
-    });
-console.log(data)
-    // ✅ Save the full user info
-    localStorage.setItem("userInfo", JSON.stringify(data));
+    try {
+      const { data } = await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/users/login`,
+        { email, password, role }
+      );
 
-    // ✅ Save the token separately for API calls
-    if (data.token) {
-      localStorage.setItem("token", data.token);
+      localStorage.setItem("userInfo", JSON.stringify(data));
+      if (data.token) localStorage.setItem("token", data.token);
+
+      if (data.role === "employer") {
+        navigate("/employer/dashboard");
+      } else {
+        navigate("/jobseeker/dashboard");
+      }
+    } catch (err) {
+      setError(
+        err.response?.data?.message || "Login failed. Please check your credentials."
+      );
+    } finally {
+      setLoading(false);
     }
+  };
 
-    // ✅ Redirect based on role
-    if (data.role === "employer") {
-      navigate("/employer/dashboard");
-    } else {
-      navigate("/jobseeker/dashboard");
-    }
-  } catch (err) {
-    setError(
-      err.response?.data?.message || "Login failed. Please check your credentials."
-    );
-  } finally {
-    setLoading(false);
-  }
-};
+  // ✅ Redirect to backend for Google login
+  const handleGoogleLogin = () => {
+    window.location.href = `${import.meta.env.VITE_API_URL}/api/auth/google`;
+  };
 
+  // ✅ Redirect to backend for Microsoft login
+  const handleMicrosoftLogin = () => {
+    window.location.href = `${import.meta.env.VITE_API_URL}/api/auth/microsoft`;
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -106,6 +109,32 @@ console.log(data)
             {loading ? "Logging in..." : "Login"}
           </button>
         </form>
+
+        {/* Divider */}
+        <div className="flex items-center justify-center my-6">
+          <div className="h-px bg-gray-300 w-1/3"></div>
+          <span className="mx-3 text-gray-500">OR</span>
+          <div className="h-px bg-gray-300 w-1/3"></div>
+        </div>
+
+        {/* OAuth Buttons */}
+        <div className="space-y-3">
+          <button
+            onClick={handleGoogleLogin}
+            className="w-full border border-gray-300 hover:bg-gray-100 text-gray-700 py-2 rounded-lg flex items-center justify-center gap-2 transition"
+          >
+            <img src={Google} alt="Google" className="w-5 h-5" />
+            Continue with Google
+          </button>
+
+          <button
+            onClick={handleMicrosoftLogin}
+            className="w-full border border-gray-300 hover:bg-gray-100 text-gray-700 py-2 rounded-lg flex items-center justify-center gap-2 transition"
+          >
+            <img src={Microsoft} alt="Microsoft" className="w-5 h-5" />
+            Continue with Microsoft
+          </button>
+        </div>
 
         <p className="text-center mt-4 text-gray-600">
           Don’t have an account?{" "}

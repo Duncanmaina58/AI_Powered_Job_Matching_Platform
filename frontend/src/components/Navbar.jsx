@@ -11,6 +11,10 @@ import {
   UserPlus,
 } from "lucide-react";
 import logo from "../assets/logo.png";
+import { getAuthToken } from "../utils/getAuthToken";
+import axios from "axios";
+const token = getAuthToken();
+axios.get("/api/users/me", { headers: { Authorization: `Bearer ${token}` } });
 
 function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);

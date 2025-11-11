@@ -22,7 +22,7 @@ import JobseekerDashboard from "./pages/JobseekerDashboard/JobseekerDashboard";
 import ViewApplicants from "./pages/ViewApplicants";
 import EditJob from "./pages/EditJob";
 import ThemeProvider from "./Theme/ThemeProvider";
-
+import AuthSuccess from "./pages/AuthSuccess";
 function App() {
   // ✅ Setup socket and toast notifications
   useEffect(() => {
@@ -70,6 +70,7 @@ function App() {
           <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/auth/success" element={<AuthSuccess />} />
 
           {/* Job Seeker */}
           <Route path="/jobs" element={<Jobs />} />

@@ -6,6 +6,8 @@ import path from "path";
 import bcrypt from "bcryptjs";
 import fs from "fs";
 
+import { sendWelcomeEmail, sendLoginEmail, sendResetPasswordEmail } from "../utils/mailer.js";
+
 /**
  * @desc Register a new user (Employer or Jobseeker)
  * @route POST /api/users/register
@@ -38,7 +40,9 @@ export const registerUser = asyncHandler(async (req, res) => {
     role,
     company_name: role === "employer" ? company_name : undefined,
   });
-
+  sendWelcomeEmail(user.email, user.name)
+  .then(() => console.log("Welcome email queued"))
+  .catch((err) => console.error("Failed to send welcome email:", err.message));
   const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
     expiresIn: "30d",
   });
@@ -83,6 +87,10 @@ export const loginUser = asyncHandler(async (req, res) => {
   const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
     expiresIn: "30d",
   });
+sendLoginEmail(user.email, user.name)
+  .then(() => console.log("Login email queued"))
+  .catch((err) => console.error("Failed to send login email:", err.message));
+
 
   res.json({
     _id: user._id,
@@ -250,4 +258,56 @@ export const uploadResume = asyncHandler(async (req, res) => {
   await req.user.save();
 
   res.json({ message: "Resume uploaded successfully", resume: resumePath });
+});
+
+export const getMe = async (req, res) => {
+  try {
+    // 1️⃣ Check if session user exists (Google OAuth)
+    if (req.user) {
+      return res.json({
+        _id: req.user._id,
+        name: req.user.name,
+        email: req.user.email,
+        provider: "google",
+      });
+    }
+
+    // 2️⃣ Otherwise, check for JWT token
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith("Bearer")) {
+      const token = authHeader.split(" ")[1];
+      try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const user = await User.findById(decoded.id).select("-password");
+        if (!user) return res.status(404).json({ message: "User not found" });
+        return res.json({ ...user._doc, provider: "jwt" });
+      } catch (err) {
+        return res.status(401).json({ message: "Invalid token" });
+      }
+    }
+
+    // 3️⃣ No auth data found
+    res.status(401).json({ message: "Not authorized, no user or token found" });
+  } catch (error) {
+    console.error("❌ Error in /api/users/me:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// Example function
+export const requestPasswordReset = asyncHandler(async (req, res) => {
+  const { email } = req.body;
+  const user = await User.findOne({ email });
+  if (!user) {
+    res.status(404);
+    throw new Error("No account found with that email");
+  }
+
+  // Generate reset token
+  const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "15m" });
+  const resetLink = `${process.env.FRONTEND_URL}/reset-password/${token}`;
+
+  await sendResetPasswordEmail(user.email, user.name, resetLink);
+
+  res.json({ message: "Password reset email sent successfully" });
 });

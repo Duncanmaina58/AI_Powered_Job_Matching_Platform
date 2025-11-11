@@ -1,11 +1,14 @@
 // ✅ server.js
+import dotenv from "dotenv";
+dotenv.config();
+
 import express from "express";
 import fs from "fs";
 
 import multer from "multer";
 import http from "http"; // ✅ Needed for socket.io
 import { Server } from "socket.io";
-import dotenv from "dotenv";
+
 import cors from "cors";
 import connectDB from "./config/db.js";
 import path from "path";
@@ -22,14 +25,17 @@ import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import mongoSanitize from "express-mongo-sanitize";
 import hpp from "hpp";
+import session from "express-session";
+import passport from "./config/passport.js";
+import authRoutes from "./routes/authRoutes.js";
 
 import matchRoutes from "./routes/matchRoutes.js";
 
-dotenv.config();
+
 connectDB();
 
 const app = express();
-
+app.use("/public", express.static(path.join(process.cwd(), "public")));
 // ✅ Allowlist for frontend origins
 const allowedOrigins = [
   "http://localhost:5173",
@@ -97,6 +103,17 @@ app.use(express.json());
 app.get("/api", (req, res) => {
   res.send(`✅ API is running in ${process.env.NODE_ENV} mode!`);
 });
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || "secret",
+    resave: false,
+    saveUninitialized: false,
+  })
+);
+
+app.use(passport.initialize());
+app.use(passport.session());
+app.use("/api/auth", authRoutes);
 
 // ✅ Routes
 app.use("/api/jobs", jobRoutes);

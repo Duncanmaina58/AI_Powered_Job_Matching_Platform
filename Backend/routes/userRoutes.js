@@ -9,6 +9,7 @@ import {
   changeUserPassword,
   upload, 
   uploadAvatar,
+  getMe,
 } from "../controllers/userController.js";
 
 import { protect } from "../middleware/authMiddleware.js";
@@ -23,7 +24,7 @@ router.put('/update-profile/:id', updateUserProfile);
 router.post("/upload-avatar", protect, upload.single("avatar"), uploadAvatar);
 router.put("/update-profile", protect, updateUserProfile);
 
-
+router.get("/me", protect, getMe);
 
 
 // ✅ Update logged-in user profile

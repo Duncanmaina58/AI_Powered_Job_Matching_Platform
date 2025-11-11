@@ -26,6 +26,7 @@ function Register() {
     setSuccess("");
 
     try {
+      
       // Only include company_name if role is employer
       const payload = { ...formData };
       if (formData.role !== "employer") delete payload.company_name;
