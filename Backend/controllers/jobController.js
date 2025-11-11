@@ -211,11 +211,11 @@ export const applyForJob = asyncHandler(async (req, res) => {
     console.error("Notification error (applyForJob):", err);
   }
 
+ // 📧 Send application confirmation email to jobseeker
   try {
     await sendJobApplicationEmail(email, name, job.title, job.company);
-    console.log(`✅ Application email sent to ${email}`);
   } catch (err) {
-    console.error("❌ Failed to send application email:", err.message);
+    console.error("Failed to send job application email:", err.message);
   }
 
   res.status(201).json({

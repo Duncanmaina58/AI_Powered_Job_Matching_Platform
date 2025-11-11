@@ -45,14 +45,13 @@ if (matchedJobs.length > 0) {
     });
   }
 
-  // 📧 Send email notification
-  try {
-    await sendJobMatchEmail(user.email, user.name, matchedJobs);
-    console.log(`✅ Job match email sent to ${user.email}`);
-  } catch (err) {
-    console.error("❌ Failed to send job match email:", err.message);
-  }
-}
+ // 📧 Send Brevo email (top 5 matches)
+      try {
+        await sendJobMatchEmail(user.email, user.name, matchedJobs);
+      } catch (err) {
+        console.error("Failed to send job match email:", err.message);
+      }
+    }
 
     res.json({ user: user.name, matched_jobs: matchedJobs });
   } catch (error) {
