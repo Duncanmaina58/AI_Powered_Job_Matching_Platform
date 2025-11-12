@@ -49,7 +49,7 @@ function Navbar() {
   }, []);
 
   // 🧩 Hide Navbar on login/register pages
-  const hideNavbarPaths = ["/login", "/register"];
+  const hideNavbarPaths = ["/login", "/register", "/LandingPage"];
   if (hideNavbarPaths.includes(location.pathname)) return null;
 
   // ✅ Logout function

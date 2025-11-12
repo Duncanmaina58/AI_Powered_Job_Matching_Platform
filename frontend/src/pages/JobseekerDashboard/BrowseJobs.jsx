@@ -10,7 +10,7 @@ import {
     X,
     Clock,
 } from "lucide-react";
-
+import { useNavigate } from "react-router-dom";
 // The component now relies solely on the darkMode prop for styling
 export default function BrowseJobs({ darkMode }) {
     const [jobs, setJobs] = useState([]);
@@ -22,7 +22,7 @@ export default function BrowseJobs({ darkMode }) {
     const [cvFile, setCvFile] = useState(null);
     const [, setMessage] = useState("");
     const [submitting, setSubmitting] = useState(false);
-
+const navigate = useNavigate();
     // ❌ Removed all internal 'isDark' state and related useEffects.
     //    'darkMode' prop is used directly for all conditional styling.
 
@@ -176,12 +176,18 @@ export default function BrowseJobs({ darkMode }) {
                                 </p>
                             </div>
 
-                            <button
-                                onClick={() => setSelectedJob(job)}
-                                className="mt-6 w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-xl font-medium text-sm transition"
-                            >
-                                Apply Now
-                            </button>
+                   
+
+
+
+
+<button
+    onClick={() => navigate(`/apply-job/${job._id}`)}
+    className="mt-6 w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-xl font-medium text-sm transition"
+>
+    Apply Now
+</button>
+
                         </div>
                     ))}
                 </div>

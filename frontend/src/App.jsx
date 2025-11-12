@@ -23,6 +23,13 @@ import ViewApplicants from "./pages/ViewApplicants";
 import EditJob from "./pages/EditJob";
 import ThemeProvider from "./Theme/ThemeProvider";
 import AuthSuccess from "./pages/AuthSuccess";
+import LandingPage from "./pages/LandingPage";
+
+// frontend/src/App.jsx or wherever your routes are
+import ApplyJob from "./pages/JobseekerDashboard/ApplyJob.jsx";
+
+
+
 function App() {
   // ✅ Setup socket and toast notifications
   useEffect(() => {
@@ -67,7 +74,8 @@ function App() {
       <Navbar />
       <main style={styles.main}>
         <Routes>
-          <Route path="/" element={<Navigate to="/login" replace />} />
+          <Route path="/" element={<Navigate to="/LandingPage" replace />} />
+          <Route path="/landingpage" element={<LandingPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/auth/success" element={<AuthSuccess />} />
@@ -77,6 +85,8 @@ function App() {
           <Route path="/BrowseJobs" element={<BrowseJobs />} />
           <Route path="/ai" element={<AIMatch />} />
           <Route path="/jobseeker/dashboard" element={<JobseekerDashboard />} />
+          <Route path="/apply-job/:id" element={<ApplyJob />} />
+
 
           {/* Employer */}
           <Route path="/employer/dashboard" element={<EmployerDashboard />} />
@@ -91,7 +101,7 @@ function App() {
           <Route path="/employer/jobs/:id/applicants" element={<ViewApplicants />} />
 
           {/* Catch-all */}
-          <Route path="*" element={<Navigate to="/login" replace />} />
+          <Route path="*" element={<Navigate to="/LandingPage" replace />} />
         </Routes>
       </main>
 

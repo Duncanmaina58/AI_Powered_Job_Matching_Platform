@@ -275,22 +275,39 @@ export const getJobseekerApplications = asyncHandler(async (req, res) => {
  */
 export const withdrawApplication = asyncHandler(async (req, res) => {
   const application = await Applicant.findById(req.params.id);
-
   if (!application) {
     res.status(404);
     throw new Error("Application not found");
   }
 
-  // Ensure user owns this application
+  // Ensure the user owns this application
   if (application.user.toString() !== req.user._id.toString()) {
     res.status(403);
     throw new Error("Not authorized to withdraw this application");
   }
 
+  const jobId = application.job;
+  const userEmail = application.email;
+
+  // 1️⃣ Remove applicant from Job's applicants list
+  await Job.updateOne(
+    { _id: jobId },
+    { $pull: { applicants: application._id } }
+  );
+
+  // 2️⃣ Delete the actual Applicant record
   await application.deleteOne();
 
-  res.status(200).json({ message: "Application withdrawn successfully" });
+  // 3️⃣ Optional: clean up notifications or send a withdrawal message to employer
+  // await Notification.create({
+  //   user: job.user,
+  //   message: `${req.user.name} withdrew their application for ${job.title}`,
+  //   type: "info",
+  // });
+
+  res.status(200).json({ message: "Application withdrawn successfully and removed from job list." });
 });
+
 
 /**
  * @desc Get jobseeker dashboard statistics

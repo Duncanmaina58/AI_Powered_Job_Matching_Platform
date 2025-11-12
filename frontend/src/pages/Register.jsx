@@ -1,7 +1,7 @@
-// frontend/src/pages/Register.jsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { motion } from "framer-motion";
 
 function Register() {
   const [formData, setFormData] = useState({
@@ -26,15 +26,13 @@ function Register() {
     setSuccess("");
 
     try {
-      
-      // Only include company_name if role is employer
       const payload = { ...formData };
       if (formData.role !== "employer") delete payload.company_name;
-      
-console.log("Sending to:", `${import.meta.env.VITE_API_URL}/api/users/register`);
-console.log("Data being sent:", formData);
 
-      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/users/register`, payload);
+      const res = await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/users/register`,
+        payload
+      );
 
       if (res.data) {
         setSuccess("🎉 Registration successful! Redirecting to login...");
@@ -46,60 +44,59 @@ console.log("Data being sent:", formData);
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-gray-100 to-gray-200">
-      <div className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md">
-        <h2 className="text-3xl font-bold text-center text-blue-600 mb-6">Create an Account</h2>
+    <div className="relative min-h-screen flex items-center justify-center overflow-hidden">
+      {/* Animated gradient background */}
+      <div className="absolute inset-0 bg-gradient-to-tr from-blue-400 via-purple-400 to-pink-400 animate-gradient-slow"></div>
+
+      {/* Overlay for subtle darkening */}
+      <div className="absolute inset-0 bg-black/25"></div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
+        className="relative bg-white p-8 rounded-3xl shadow-2xl w-full max-w-md z-10 backdrop-blur-md"
+      >
+        <h2 className="text-3xl font-bold text-center text-blue-600 mb-6">
+          Create an Account
+        </h2>
 
         {error && (
-          <div className="bg-red-100 text-red-700 px-3 py-2 rounded mb-3 text-center">
+          <div className="bg-red-100 text-red-700 px-3 py-2 rounded mb-3 text-center animate-fade-in">
             {error}
           </div>
         )}
         {success && (
-          <div className="bg-green-100 text-green-700 px-3 py-2 rounded mb-3 text-center">
+          <div className="bg-green-100 text-green-700 px-3 py-2 rounded mb-3 text-center animate-fade-in">
             {success}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block font-medium mb-1">Full Name</label>
-            <input
-              type="text"
-              name="name"
-              placeholder="John Doe"
-              value={formData.name}
-              onChange={handleChange}
-              required
-              className="w-full border p-2 rounded focus:ring-2 focus:ring-blue-400 outline-none"
-            />
-          </div>
-
-          <div>
-            <label className="block font-medium mb-1">Email Address</label>
-            <input
-              type="email"
-              name="email"
-              placeholder="john@example.com"
-              value={formData.email}
-              onChange={handleChange}
-              required
-              className="w-full border p-2 rounded focus:ring-2 focus:ring-blue-400 outline-none"
-            />
-          </div>
-
-          <div>
-            <label className="block font-medium mb-1">Password</label>
-            <input
-              type="password"
-              name="password"
-              placeholder="••••••••"
-              value={formData.password}
-              onChange={handleChange}
-              required
-              className="w-full border p-2 rounded focus:ring-2 focus:ring-blue-400 outline-none"
-            />
-          </div>
+          <InputField
+            label="Full Name"
+            name="name"
+            type="text"
+            placeholder="John Doe"
+            value={formData.name}
+            onChange={handleChange}
+          />
+          <InputField
+            label="Email Address"
+            name="email"
+            type="email"
+            placeholder="john@example.com"
+            value={formData.email}
+            onChange={handleChange}
+          />
+          <InputField
+            label="Password"
+            name="password"
+            type="password"
+            placeholder="••••••••"
+            value={formData.password}
+            onChange={handleChange}
+          />
 
           <div>
             <label className="block font-medium mb-1">Register as</label>
@@ -107,32 +104,27 @@ console.log("Data being sent:", formData);
               name="role"
               value={formData.role}
               onChange={handleChange}
-              className="w-full border p-2 rounded focus:ring-2 focus:ring-blue-400 outline-none"
+              className="w-full border p-2 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none shadow-sm transition"
             >
               <option value="jobseeker">Jobseeker</option>
               <option value="employer">Employer</option>
             </select>
           </div>
 
-          {/* Show company name only if Employer is selected */}
           {formData.role === "employer" && (
-            <div>
-              <label className="block font-medium mb-1">Company Name</label>
-              <input
-                type="text"
-                name="company_name"
-                placeholder="e.g., TechCorp Ltd"
-                value={formData.company_name}
-                onChange={handleChange}
-                required={formData.role === "employer"}
-                className="w-full border p-2 rounded focus:ring-2 focus:ring-blue-400 outline-none"
-              />
-            </div>
+            <InputField
+              label="Company Name"
+              name="company_name"
+              type="text"
+              placeholder="e.g., TechCorp Ltd"
+              value={formData.company_name}
+              onChange={handleChange}
+            />
           )}
 
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-all duration-300"
+            className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-all duration-300 shadow-md"
           >
             Register
           </button>
@@ -147,9 +139,45 @@ console.log("Data being sent:", formData);
             </span>
           </p>
         </form>
-      </div>
+      </motion.div>
+
+      {/* Animations for gradient */}
+      <style>{`
+        @keyframes gradient-slow {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+        .animate-gradient-slow {
+          background-size: 200% 200%;
+          animation: gradient-slow 15s ease infinite;
+        }
+        .animate-fade-in {
+          animation: fadeIn 0.6s ease forwards;
+        }
+        @keyframes fadeIn {
+          0% { opacity: 0; transform: translateY(10px); }
+          100% { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
     </div>
   );
 }
+
+// Reusable input field component
+const InputField = ({ label, name, type, placeholder, value, onChange }) => (
+  <div>
+    <label className="block font-medium mb-1">{label}</label>
+    <input
+      type={type}
+      name={name}
+      placeholder={placeholder}
+      value={value}
+      onChange={onChange}
+      required
+      className="w-full border p-2 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none shadow-sm transition duration-300"
+    />
+  </div>
+);
 
 export default Register;
