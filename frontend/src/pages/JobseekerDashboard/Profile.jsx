@@ -380,7 +380,10 @@ const Profile = ({ darkMode }) => {
                                     </label>
                                 </div>
                             )}
+
                         </div>
+
+                        
                     </div>
                 </div>
             </div>

@@ -31,6 +31,14 @@ const userSchema = new mongoose.Schema(
     },
     bio: { 
         type: String },
+       
+    subscription: {
+        tier: { type: String, default: "Free" }, // Free, Premium Basic, Premium Pro
+        startDate: { type: Date },
+        endDate: { type: Date },
+        status: { type: String, default: "active" }, // active, expired, canceled
+        paymentId: { type: String }, // for Stripe/PayPal reference
+    },
 
 
 

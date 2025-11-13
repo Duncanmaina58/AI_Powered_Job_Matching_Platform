@@ -24,7 +24,7 @@ import EditJob from "./pages/EditJob";
 import ThemeProvider from "./Theme/ThemeProvider";
 import AuthSuccess from "./pages/AuthSuccess";
 import LandingPage from "./pages/LandingPage";
-
+import Subscription from "./pages/JobseekerDashboard/Subscription.jsx";
 // frontend/src/App.jsx or wherever your routes are
 import ApplyJob from "./pages/JobseekerDashboard/ApplyJob.jsx";
 
@@ -86,6 +86,7 @@ function App() {
           <Route path="/ai" element={<AIMatch />} />
           <Route path="/jobseeker/dashboard" element={<JobseekerDashboard />} />
           <Route path="/apply-job/:id" element={<ApplyJob />} />
+          <Route path="/jobseeker/subscription" element={<Subscription />} />
 
 
           {/* Employer */}

@@ -30,6 +30,7 @@ import passport from "./config/passport.js";
 import authRoutes from "./routes/authRoutes.js";
 
 import matchRoutes from "./routes/matchRoutes.js";
+import subscriptionRoutes from "./routes/subscription.js";
 
 
 connectDB();
@@ -124,8 +125,8 @@ app.use("/api/jobseeker", jobseekerRoutes);
 app.use("/api/applications", applicationRoutes);
 app.use("/uploads", express.static("uploads"));
 app.use("/api/notifications", notificationRoutes);
-
-
+app.use("/api/subscription", subscriptionRoutes);
+// ✅ Multer setup for file uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     const dir = path.join("uploads", "avatars");

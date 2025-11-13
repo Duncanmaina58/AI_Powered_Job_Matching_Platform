@@ -2,7 +2,17 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { Loader2, Briefcase, Calendar, MapPin, DollarSign } from "lucide-react";
+import {
+  Loader2,
+  Briefcase,
+  Calendar,
+  MapPin,
+  DollarSign,
+  Building2,
+  ClipboardList,
+  CheckCircle,
+  FileText,
+} from "lucide-react";
 
 export default function ApplyJob({ darkMode }) {
   const { id } = useParams();
@@ -88,7 +98,10 @@ export default function ApplyJob({ darkMode }) {
     return (
       <div className={`flex flex-col justify-center items-center h-screen ${darkClasses.bg} ${darkClasses.text}`}>
         <p>{message || "Job not found."}</p>
-        <button onClick={() => navigate(-1)} className="mt-4 text-blue-600 hover:underline">
+        <button
+          onClick={() => navigate(-1)}
+          className="mt-4 text-blue-600 hover:underline"
+        >
           Go Back
         </button>
       </div>
@@ -96,96 +109,114 @@ export default function ApplyJob({ darkMode }) {
   }
 
   return (
-    <div className={`min-h-screen py-12 px-4 sm:px-6 lg:px-8 ${darkClasses.bg} flex justify-center`}>
-      <div className="max-w-3xl w-full space-y-10">
-        {/* Job Details Card */}
-        <div className={`${darkClasses.cardBg} rounded-3xl shadow-xl border ${darkClasses.cardBorder} p-8`}>
-          <h1 className={`text-3xl font-bold mb-4 text-center ${darkClasses.text}`}>{job.title}</h1>
-          <p className={`text-center ${darkClasses.subText} mb-6`}>
-            {job.company} • {job.location} • <span className="font-medium">{job.job_type || "Full Time"}</span>
-          </p>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
-            <div className="flex flex-col">
-              <h3 className={`font-semibold ${darkClasses.text}`}>Location</h3>
-              <p className={`${darkClasses.subText} flex items-center gap-2`}><MapPin size={16} /> {job.location || "Not specified"}</p>
-            </div>
-            <div className="flex flex-col">
-              <h3 className={`font-semibold ${darkClasses.text}`}>Salary</h3>
-              <p className={`${darkClasses.subText} flex items-center gap-2`}>
-                <DollarSign size={16} /> 
-                {job.salary_range?.min
-                  ? `$${job.salary_range.min.toLocaleString()} - $${job.salary_range.max?.toLocaleString()}/month`
-                  : "Not specified"}
-              </p>
-            </div>
-            <div className="flex flex-col">
-              <h3 className={`font-semibold ${darkClasses.text}`}>Posted Date</h3>
-              <p className={`${darkClasses.subText} flex items-center gap-2`}><Calendar size={16} /> {new Date(job.createdAt).toLocaleDateString()}</p>
-            </div>
-            <div className="flex flex-col">
-              <h3 className={`font-semibold ${darkClasses.text}`}>Job Type</h3>
-              <span className={`px-3 py-1 rounded-full text-sm font-medium text-center ${
-                darkMode ? "bg-blue-900 text-blue-300" : "bg-blue-100 text-blue-600"
-              }`}>{job.job_type || "Full Time"}</span>
-            </div>
+    <div className={`min-h-screen py-16 px-6 ${darkClasses.bg}`}>
+      <div className="max-w-5xl mx-auto grid md:grid-cols-3 gap-10">
+        {/* Job Details */}
+        <div className={`md:col-span-2 ${darkClasses.cardBg} rounded-3xl shadow-lg border ${darkClasses.cardBorder} p-8`}>
+          <div className="flex items-center gap-4 mb-6">
+            <Briefcase className="text-blue-600" size={28} />
+            <h1 className={`text-3xl font-bold ${darkClasses.text}`}>{job.title}</h1>
+          </div>
+          <div className="space-y-2 mb-6">
+            <p className={`flex items-center gap-2 ${darkClasses.subText}`}>
+              <Building2 size={16} /> {job.company}
+            </p>
+            <p className={`flex items-center gap-2 ${darkClasses.subText}`}>
+              <MapPin size={16} /> {job.location}
+            </p>
+            <p className={`flex items-center gap-2 ${darkClasses.subText}`}>
+              <DollarSign size={16} />{" "}
+              {job.salary_range?.min
+                ? `$${job.salary_range.min.toLocaleString()} - $${job.salary_range.max?.toLocaleString()}/month`
+                : "Not specified"}
+            </p>
+            <p className={`flex items-center gap-2 ${darkClasses.subText}`}>
+              <Calendar size={16} /> {new Date(job.createdAt).toLocaleDateString()}
+            </p>
           </div>
 
-          <div className="mb-6">
-            <h3 className={`font-semibold text-lg mb-2 ${darkClasses.text}`}>Job Description</h3>
-            <p className={`${darkClasses.subText} text-sm whitespace-pre-line`}>{job.description || "No description provided."}</p>
-          </div>
+          <div className="border-t border-gray-300 my-6" />
+
+          <section className="space-y-4">
+            <h2 className={`text-xl font-semibold flex items-center gap-2 ${darkClasses.text}`}>
+              <FileText size={20} /> Job Description
+            </h2>
+            <p className={`${darkClasses.subText} text-sm leading-relaxed`}>
+              {job.description || "No description provided."}
+            </p>
+          </section>
 
           {job.requirements && (
-            <div className="mb-6">
-              <h3 className={`font-semibold text-lg mb-2 ${darkClasses.text}`}>Requirements</h3>
-              <ul className={`${darkClasses.subText} list-disc pl-5 space-y-1 text-sm`}>
+            <section className="space-y-3 mt-6">
+              <h2 className={`text-xl font-semibold flex items-center gap-2 ${darkClasses.text}`}>
+                <ClipboardList size={20} /> Requirements
+              </h2>
+              <ul className="list-disc pl-6 space-y-1 text-sm text-gray-500">
                 {job.requirements.map((req, i) => (
                   <li key={i}>{req}</li>
                 ))}
               </ul>
-            </div>
+            </section>
           )}
 
           {job.responsibilities && (
-            <div>
-              <h3 className={`font-semibold text-lg mb-2 ${darkClasses.text}`}>Responsibilities</h3>
-              <ul className={`${darkClasses.subText} list-disc pl-5 space-y-1 text-sm`}>
+            <section className="space-y-3 mt-6">
+              <h2 className={`text-xl font-semibold flex items-center gap-2 ${darkClasses.text}`}>
+                <CheckCircle size={20} /> Responsibilities
+              </h2>
+              <ul className="list-disc pl-6 space-y-1 text-sm text-gray-500">
                 {job.responsibilities.map((resp, i) => (
                   <li key={i}>{resp}</li>
                 ))}
               </ul>
-            </div>
+            </section>
           )}
         </div>
 
-        {/* Application Form Card */}
-        <div className={`${darkClasses.cardBg} rounded-3xl shadow-xl border ${darkClasses.cardBorder} p-8`}>
+        {/* Application Form */}
+        <div className={`${darkClasses.cardBg} rounded-3xl shadow-lg border ${darkClasses.cardBorder} p-8`}>
           <h2 className={`text-2xl font-bold mb-6 text-center ${darkClasses.text}`}>Apply for this Job</h2>
-          {message && <p className="mb-4 text-center text-red-500">{message}</p>}
+
+          {message && (
+            <p className="mb-4 text-center text-sm font-medium text-red-500">
+              {message}
+            </p>
+          )}
 
           <form onSubmit={handleSubmitApplication} className="space-y-5">
-            <textarea
-              value={coverLetter}
-              onChange={(e) => setCoverLetter(e.target.value)}
-              required
-              placeholder="Write your cover letter..."
-              className={`w-full border ${darkClasses.cardBorder} bg-transparent rounded-xl px-4 py-3 text-sm ${darkClasses.inputText} focus:ring-2 focus:ring-blue-500 resize-none`}
-              rows={6}
-            />
+            <div>
+              <label className={`block text-sm font-medium mb-1 ${darkClasses.text}`}>
+                Cover Letter
+              </label>
+              <textarea
+                value={coverLetter}
+                onChange={(e) => setCoverLetter(e.target.value)}
+                required
+                placeholder="Write your cover letter..."
+                rows={6}
+                className={`w-full border ${darkClasses.cardBorder} bg-transparent rounded-xl px-4 py-3 text-sm ${darkClasses.inputText} focus:ring-2 focus:ring-blue-500 resize-none`}
+              />
+            </div>
 
-            <input
-              type="file"
-              accept=".pdf,.doc,.docx"
-              onChange={(e) => setCvFile(e.target.files[0])}
-              className={`w-full border ${darkClasses.cardBorder} bg-transparent rounded-xl px-4 py-3 text-sm ${darkClasses.inputText}`}
-            />
+            <div>
+              <label className={`block text-sm font-medium mb-1 ${darkClasses.text}`}>
+                Upload CV (PDF/DOC/DOCX)
+              </label>
+              <input
+                type="file"
+                accept=".pdf,.doc,.docx"
+                onChange={(e) => setCvFile(e.target.files[0])}
+                className={`w-full border ${darkClasses.cardBorder} bg-transparent rounded-xl px-4 py-3 text-sm ${darkClasses.inputText}`}
+              />
+            </div>
 
             <button
               type="submit"
               disabled={submitting}
               className={`w-full flex justify-center items-center gap-2 text-white font-semibold py-3 rounded-xl transition ${
-                submitting ? "bg-blue-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"
+                submitting
+                  ? "bg-blue-400 cursor-not-allowed"
+                  : "bg-blue-600 hover:bg-blue-700"
               }`}
             >
               {submitting ? (
