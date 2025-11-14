@@ -35,7 +35,8 @@
     "passport-azure-ad": "^4.3.5",
     "passport-google-oauth20": "^2.0.0",
     "sib-api-v3-sdk": "^8.5.0",
-    "socket.io": "^4.8.1"
+    "socket.io": "^4.8.1",
+    "stripe": "^19.3.1"
   },
   "devDependencies": {
     "eslint": "^9.38.0",

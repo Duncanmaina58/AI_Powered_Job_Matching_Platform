@@ -13,50 +13,50 @@ import { sendWelcomeEmail, sendLoginEmail, sendResetPasswordEmail } from "../uti
  * @route POST /api/users/register
  * @access Public
  */
+
+
 export const registerUser = asyncHandler(async (req, res) => {
-  const { name, email, password, role, company_name } = req.body;
+  const { name, email, password, role, company_name, subscriptionTier } = req.body;
 
-  if (!name || !email || !password || !role) {
+  if (!name || !email || !password) {
     res.status(400);
-    throw new Error("Please fill all fields (name, email, password, role)");
+    throw new Error("Please fill in all required fields.");
   }
 
-  // Require company name only for employers
-  if (role === "employer" && !company_name) {
+  const userExists = await User.findOne({ email });
+  if (userExists) {
     res.status(400);
-    throw new Error("Company name is required for employers");
+    throw new Error("User already exists.");
   }
 
-  const existingUser = await User.findOne({ email });
-  if (existingUser) {
-    res.status(400);
-    throw new Error("User already exists");
-  }
+  // determine subscription info
+  const subscription = {
+    tier: subscriptionTier || "Free",
+    startDate: new Date(),
+    endDate: subscriptionTier === "Free" ? null : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
+    status: "active",
+  };
 
   const user = await User.create({
     name,
     email,
-    password, // handled by pre('save')
+    password,
     role,
     company_name: role === "employer" ? company_name : undefined,
+    subscription,
   });
-  sendWelcomeEmail(user.email, user.name)
-  .then(() => console.log("Welcome email queued"))
-  .catch((err) => console.error("Failed to send welcome email:", err.message));
-  const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-    expiresIn: "30d",
-  });
+
+  const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "30d" });
 
   res.status(201).json({
     _id: user._id,
     name: user.name,
     email: user.email,
     role: user.role,
-    company_name: user.company_name,
+    subscription: user.subscription,
     token,
   });
 });
-
 /**
  * @desc Authenticate user & get token (with role)
  * @route POST /api/users/login

@@ -48,7 +48,7 @@ export default function Overview({ darkMode }) {
           { title: "Active Applications", value: s.activeApplications, icon: <Briefcase /> },
           { title: "Jobs Matched", value: s.matchedJobs, icon: <Target /> },
           { title: "Messages", value: s.messages, icon: <MessageSquare /> },
-          { title: "Profile Completion", value: `${s.profileCompletion}%`, icon: <BarChart3 /> },
+          { title: "Profile Completion", value: `${s.profileCompletion}`, icon: <BarChart3 /> },
         ]);
       } catch {
         setError("Failed to load dashboard data.");
@@ -116,6 +116,7 @@ export default function Overview({ darkMode }) {
             Welcome back, {user?.name || "Jobseeker"} 👋
           </h1>
           <p className="text-blue-100 mt-2">{user?.email}</p>
+          
         </motion.div>
       </section>
 

@@ -8,6 +8,8 @@ import Profile from "./Profile";
 import axios from "axios";
 import { io } from "socket.io-client";
 import { Bell, Menu, Moon, Sun } from "lucide-react";
+import UpgradeBanner from "../../components/UpgradeBanner";
+import SubscriptionUpgrade from "../../components/SubscriptionUpgrade";
 
 function JobseekerDashboard() {
   const [active, setActive] = useState("overview");
@@ -119,21 +121,23 @@ const token = storedUser?.token || localStorage.getItem("token");
   }, []);
 
   // ✅ Render main section
-  const renderContent = () => {
-    switch (active) {
-      case "overview":
+ const renderContent = () => {
+  switch (active) {
+    case "overview":
+      return <Overview darkMode={darkMode} />;
+    case "browse":
+      return <BrowseJobs darkMode={darkMode} />;
+    case "applications":
+      return <Applications darkMode={darkMode} />;
+    case "profile":
+      return <Profile darkMode={darkMode} />;
+    case "subscription":
+      return <SubscriptionUpgrade user={user} />;
+    default:
+      return <Overview />;
+  }
+};
 
-        return <Overview darkMode={darkMode} />;
-      case "browse":
-        return <BrowseJobs darkMode={darkMode} />;
-      case "applications":
-        return <Applications darkMode={darkMode} />;
-      case "profile":
-        return <Profile darkMode={darkMode} />;
-      default:
-        return <Overview />;
-    }
-  };
 
   return (
     <div className={`flex h-screen ${darkMode ? "bg-gray-900 text-gray-200" : "bg-gray-100 text-gray-900"}`}>
@@ -166,10 +170,12 @@ const token = storedUser?.token || localStorage.getItem("token");
       <div className="flex-1 overflow-y-auto">
         {/* Header */}
         <header
+        
           className={`sticky top-0 z-20 px-4 md:px-6 py-4 flex justify-between items-center shadow transition-colors ${
             darkMode ? "bg-gray-800 text-gray-200" : "bg-white text-gray-700"
           }`}
         >
+          
           <div className="flex items-center gap-3">
             {/* Mobile Menu */}
             <button
@@ -185,6 +191,7 @@ const token = storedUser?.token || localStorage.getItem("token");
 
           <div className="flex items-center gap-6 relative" ref={bellRef}>
             {/* Dark Mode Toggle */}
+            
             <button
               onClick={() => setDarkMode(!darkMode)}
               className="transition hover:text-blue-500"
@@ -205,6 +212,15 @@ const token = storedUser?.token || localStorage.getItem("token");
                 </span>
               )}
             </div>
+            {/* Upgrade Button */}
+  {user?.subscription !== "premium" && (
+    <button
+      onClick={() => setActive("subscription")}
+      className="ml-3 bg-yellow-500 hover:bg-yellow-600 text-white text-sm px-3 py-1 rounded-md font-medium transition"
+    >
+      Upgrade to Premium
+    </button>
+  )}
 
             {/* Username */}
             <div className="font-medium hidden sm:block">

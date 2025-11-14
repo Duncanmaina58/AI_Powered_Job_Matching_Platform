@@ -1,5 +1,4 @@
-// frontend/src/pages/JobseekerDashboard/Sidebar.jsx
-import { Home, Briefcase, User, LogOut } from "lucide-react";
+import { Home, Briefcase, User, LogOut, Gem } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const Sidebar = ({ active, setActive, darkMode }) => {
@@ -10,6 +9,7 @@ const Sidebar = ({ active, setActive, darkMode }) => {
     { id: "browse", label: "Browse Jobs", icon: <Briefcase size={18} /> },
     { id: "applications", label: "My Applications", icon: <Briefcase size={18} /> },
     { id: "profile", label: "Profile", icon: <User size={18} /> },
+    { id: "subscription", label: "Upgrade Plan", icon: <Gem size={18} className="text-yellow-400" /> },
   ];
 
   const handleLogout = () => {
@@ -34,8 +34,8 @@ const Sidebar = ({ active, setActive, darkMode }) => {
             className={`flex items-center gap-3 px-4 py-2 rounded-lg transition-colors ${
               active === item.id
                 ? darkMode
-                  ? "bg-gray-700"
-                  : "bg-blue-900"
+                  ? "bg-gray-700 font-semibold"
+                  : "bg-blue-900 font-semibold"
                 : darkMode
                 ? "hover:bg-gray-700"
                 : "hover:bg-blue-800"

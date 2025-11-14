@@ -36,33 +36,31 @@ export default function Subscription({ darkMode }) {
 
   // Subscribe to a plan
   const handleSubscribe = async (tier) => {
-    if (!userId) {
-      setMessage("⚠️ Please login to subscribe.");
-      return;
-    }
+  if (!userId) {
+    setMessage("⚠️ Please login to subscribe.");
+    return;
+  }
 
-    setSubmitting(true);
-    setMessage("");
+  setSubmitting(true);
+  setMessage("");
 
-    try {
-      // Mock payment ID for now (replace with actual Stripe/PayPal integration later)
-      const paymentId = `mock_payment_${Date.now()}`;
-      await axios.post(`${import.meta.env.VITE_API_URL}/api/subscription/create`, {
-        userId,
-        tier,
-        paymentId,
-      }, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+  try {
+    const res = await axios.post(
+      `${import.meta.env.VITE_API_URL}/api/subscription/create-checkout-session`,
+      { userId, tier },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
 
-      setMessage(`✅ Successfully subscribed to ${tier}`);
-    } catch (err) {
-      console.error(err);
-      setMessage("❌ Subscription failed. Try again.");
-    } finally {
-      setSubmitting(false);
-    }
-  };
+    // Redirect to Stripe Checkout
+    window.location.href = res.data.url;
+  } catch (err) {
+    console.error(err);
+    setMessage("❌ Failed to start payment. Please try again.");
+  } finally {
+    setSubmitting(false);
+  }
+};
+
 
   return (
     <div className={`min-h-screen py-10 px-4 sm:px-6 lg:px-8 ${bgClasses}`}>
