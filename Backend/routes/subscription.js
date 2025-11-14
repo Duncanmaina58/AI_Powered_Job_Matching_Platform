@@ -8,9 +8,9 @@ dotenv.config();
 const router = express.Router();
 
 // Initialize Stripe with your secret key
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: "2023-08-16",
-});
+// const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+//   apiVersion: "2023-08-16",
+// });
 
 // Hardcoded subscription plans (price in USD cents for Stripe)
 const subscriptionPlans = [
@@ -39,75 +39,75 @@ router.get("/plans", (req, res) => {
   res.json(subscriptionPlans);
 });
 
-// Create Stripe Checkout Session
-router.post("/create-checkout-session", async (req, res) => {
-  const { userId, tier } = req.body;
+// // Create Stripe Checkout Session
+// router.post("/create-checkout-session", async (req, res) => {
+//   const { userId, tier } = req.body;
 
-  try {
-    const plan = subscriptionPlans.find((p) => p.tier === tier);
-    if (!plan || !plan.stripePriceId) {
-      return res.status(400).json({ message: "Invalid subscription tier" });
-    }
+//   try {
+//     const plan = subscriptionPlans.find((p) => p.tier === tier);
+//     if (!plan || !plan.stripePriceId) {
+//       return res.status(400).json({ message: "Invalid subscription tier" });
+//     }
 
-    const session = await stripe.checkout.sessions.create({
-      payment_method_types: ["card"],
-      mode: "payment",
-      line_items: [
-        {
-          price: plan.stripePriceId,
-          quantity: 1,
-        },
-      ],
-      metadata: { userId, tier },
-      success_url: `${process.env.CLIENT_URL}/dashboard?success=true`,
-      cancel_url: `${process.env.CLIENT_URL}/dashboard?canceled=true`,
-    });
+//     const session = await stripe.checkout.sessions.create({
+//       payment_method_types: ["card"],
+//       mode: "payment",
+//       line_items: [
+//         {
+//           price: plan.stripePriceId,
+//           quantity: 1,
+//         },
+//       ],
+//       metadata: { userId, tier },
+//       success_url: `${process.env.CLIENT_URL}/dashboard?success=true`,
+//       cancel_url: `${process.env.CLIENT_URL}/dashboard?canceled=true`,
+//     });
 
-    res.json({ url: session.url });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Failed to create Stripe session" });
-  }
-});
+//     res.json({ url: session.url });
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ message: "Failed to create Stripe session" });
+//   }
+// });
 
-// Stripe webhook to update subscription after successful payment
-router.post(
-  "/webhook",
-  express.raw({ type: "application/json" }),
-  async (req, res) => {
-    const sig = req.headers["stripe-signature"];
-    let event;
+// // Stripe webhook to update subscription after successful payment
+// router.post(
+//   "/webhook",
+//   express.raw({ type: "application/json" }),
+//   async (req, res) => {
+//     const sig = req.headers["stripe-signature"];
+//     let event;
 
-    try {
-      event = stripe.webhooks.constructEvent(
-        req.body,
-        sig,
-        process.env.STRIPE_WEBHOOK_SECRET
-      );
-    } catch (err) {
-      console.log("⚠️ Webhook signature verification failed.", err.message);
-      return res.status(400).send(`Webhook Error: ${err.message}`);
-    }
+//     try {
+//       event = stripe.webhooks.constructEvent(
+//         req.body,
+//         sig,
+//         process.env.STRIPE_WEBHOOK_SECRET
+//       );
+//     } catch (err) {
+//       console.log("⚠️ Webhook signature verification failed.", err.message);
+//       return res.status(400).send(`Webhook Error: ${err.message}`);
+//     }
 
-    if (event.type === "checkout.session.completed") {
-      const session = event.data.object;
-      const userId = session.metadata.userId;
-      const tier = session.metadata.tier;
+//     if (event.type === "checkout.session.completed") {
+//       const session = event.data.object;
+//       const userId = session.metadata.userId;
+//       const tier = session.metadata.tier;
 
-      const startDate = new Date();
-      const endDate = new Date();
-      endDate.setMonth(endDate.getMonth() + 1);
+//       const startDate = new Date();
+//       const endDate = new Date();
+//       endDate.setMonth(endDate.getMonth() + 1);
 
-      await User.findByIdAndUpdate(userId, {
-        subscription: { tier, startDate, endDate, status: "active", paymentId: session.payment_intent },
-      });
+//       await User.findByIdAndUpdate(userId, {
+//         subscription: { tier, startDate, endDate, status: "active", paymentId: session.payment_intent },
+//       });
 
-      console.log(`✅ Subscription updated for user ${userId} to tier ${tier}`);
-    }
+//       console.log(`✅ Subscription updated for user ${userId} to tier ${tier}`);
+//     }
 
-    res.json({ received: true });
-  }
-);
+//     res.json({ received: true });
+//   }
+// );
 
 // GET subscription status
 router.get("/status/:userId", async (req, res) => {
